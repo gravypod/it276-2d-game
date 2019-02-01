@@ -2,8 +2,16 @@
 #include <gf2d_sprite.h>
 #include <gf2d_graphics.h>
 #include <game/entity/definitions/cursor.h>
+#include <game/entity/definitions/background.h>
 #include "game.h"
 #include "entity/manager.h"
+
+
+#define NUM_SYSTEM_INITIALIZERS 2
+entity_initializer_t system_initializers[NUM_SYSTEM_INITIALIZERS] = {
+        entity_background_init,
+        entity_cursor_init,
+};
 
 game_sate_t state = {
         .running = true,
@@ -35,19 +43,13 @@ void game_update()
 
 }
 
-void game_draw(Sprite *sprite)
+void game_draw()
 {
     gf2d_graphics_clear_screen();
     {
-        gf2d_sprite_draw_image(sprite, vector2d(0, 0));
         entity_manager_draw();
     }
     gf2d_grahics_next_frame();// render current draw frame and skip to the next frame
-}
-
-void game_cleanup()
-{
-    entity_manager_free();
 }
 
 int main(int argc, char **argv)
@@ -57,12 +59,15 @@ int main(int argc, char **argv)
     game_graphics_init();
     SDL_ShowCursor(SDL_DISABLE);
 
-    entity_t *mouse = entity_manager_make(entity_cursor_init);
-    Sprite *sprite = gf2d_sprite_load_image("images/backgrounds/bg_flat.png");
+    // Initialize all system components
+    for (size_t i = 0; i < NUM_SYSTEM_INITIALIZERS; i++) {
+        entity_manager_make(system_initializers[i]);
+    }
+
 
     while (state.running) {
         game_update();
-        game_draw(sprite);
+        game_draw();
     }
 
 }
