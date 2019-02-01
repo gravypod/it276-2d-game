@@ -3,13 +3,15 @@
 #include <gf2d_graphics.h>
 #include <game/entity/definitions/cursor.h>
 #include <game/entity/definitions/background.h>
+#include <game/entity/definitions/player.h>
 #include "game.h"
 #include "entity/manager.h"
 
 
-#define NUM_SYSTEM_INITIALIZERS 2
+#define NUM_SYSTEM_INITIALIZERS 3
 entity_initializer_t system_initializers[NUM_SYSTEM_INITIALIZERS] = {
         entity_background_init,
+        entity_player_init,
         entity_cursor_init,
 };
 
