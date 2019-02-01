@@ -2,9 +2,7 @@
 #include <gf2d_sprite.h>
 #include "background.h"
 
-char *entity_image_files[entity_background_image_last] = {
-    ENTITY_BACKGROUND_IMAGE_DEFAULT
-};
+
 Sprite *sprites[entity_background_image_last] = {NULL};
 entity_background_image_id current;
 bool loaded = false;
