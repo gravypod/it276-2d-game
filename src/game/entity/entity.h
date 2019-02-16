@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <gf2d_vector.h>
+#include <gf2d_sprite.h>
 
 /**
  * Abstract definition of an entity
@@ -24,6 +25,12 @@ typedef struct entity_struct
      * Health points of entity
      */
     long health;
+
+    // Rendering the player/entity
+    Sprite *sprite;
+    Uint32 sprite_frame;
+
+    Vector2D velocity;
 
     /**
      * The location in world space of the entity
