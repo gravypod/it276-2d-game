@@ -155,7 +155,7 @@ void entity_draw(entity_t *entity)
                 NULL,
                 NULL,
                 NULL,
-                NULL,
+                entity->has_color ? &entity->color : NULL,
                 entity->sprite_frame
         );
     }

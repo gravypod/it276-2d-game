@@ -4,8 +4,6 @@
 #include <game/entity/entity.h>
 
 void entity_cursor_init(entity_t *entity);
-void entity_cursor_free(entity_t *entity);
 void entity_cursor_update(entity_t *entity);
-void entity_cursor_draw(entity_t *entity);
 
 #endif

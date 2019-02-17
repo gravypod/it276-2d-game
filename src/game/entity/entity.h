@@ -52,6 +52,8 @@ typedef struct entity_struct
     long health;
 
     // Rendering the player/entity
+    bool has_color;
+    Vector4D color;
     Sprite *sprite;
     Uint32 sprite_frame;
 
@@ -138,6 +140,8 @@ static inline void entity_touch_wall_to_string(entity_touch_wall_t wall, char si
     if (wall & entity_touch_wall_right) {
         sides[x++] = 'R';
     }
+
+    sides[x] = 0;
 }
 
 /**
