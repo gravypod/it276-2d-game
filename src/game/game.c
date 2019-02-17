@@ -4,6 +4,7 @@
 #include <game/entity/definitions/cursor.h>
 #include <game/entity/definitions/background.h>
 #include <game/entity/definitions/player.h>
+#include <game/collision/bbox.h>
 #include "game.h"
 #include "entity/manager.h"
 
@@ -18,18 +19,22 @@ entity_initializer_t system_initializers[NUM_SYSTEM_INITIALIZERS] = {
 game_sate_t state = {
         .running = true,
         .keys = NULL,
+
+        .view_width = 1200, .render_width = 1200,
+        .view_height = 720, .render_height = 720
 };
 
 void game_graphics_init()
 {
     gf2d_graphics_initialize(
             "gf2d",
-            1200,
-            720,
-            1200,
-            720,
+            state.view_width,
+            state.view_height,
+            state.render_width,
+            state.render_height,
             vector4d(0, 0, 0, 255),
-            0);
+            0
+    );
     gf2d_graphics_set_frame_delay(16);
     gf2d_sprite_init(1024);
 }
@@ -66,10 +71,8 @@ int main(int argc, char **argv)
         entity_manager_make(system_initializers[i]);
     }
 
-
     while (state.running) {
         game_update();
         game_draw();
     }
-
 }

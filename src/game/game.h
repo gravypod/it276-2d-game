@@ -9,6 +9,11 @@ typedef struct
     bool running;
     const Uint8 *keys;
     int mouse_x, mouse_y;
+
+    int view_width, view_height;
+    int render_width, render_height;
+
+    // The viewport is x = 0 is the left most, y = 0 top most
 } game_sate_t;
 
 extern game_sate_t state;

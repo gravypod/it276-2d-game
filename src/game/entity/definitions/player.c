@@ -6,15 +6,25 @@
 #include <simple_logger.h>
 
 #define NUM_FRAMES 148
+#define SPRITE_HEIGHT 128
+#define SPRITE_WIDTH 128
 
 void entity_player_init(entity_t *entity)
 {
     entity->free = entity_player_free;
     entity->update = entity_player_update;
     entity->draw = entity_player_draw;
-    entity->sprite = gf2d_sprite_load_all("images/ed210_top.png", 128, 128, 16);
+    entity->touching_wall = entity_player_touching_wall;
+    entity->sprite = gf2d_sprite_load_all("images/ed210_top.png", SPRITE_WIDTH, SPRITE_HEIGHT, 16);
     entity->position.x = 10;
     entity->position.y = 10;
+
+    entity->size.x = SPRITE_WIDTH; entity->size.y = SPRITE_HEIGHT;
+}
+
+void entity_player_touching_wall(entity_t *entity, entity_touch_wall_t wall)
+{
+    printf("Player is touching wall!\n");
 }
 
 void entity_player_free(entity_t *entity)
