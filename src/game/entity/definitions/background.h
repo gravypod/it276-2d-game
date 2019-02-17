@@ -16,6 +16,5 @@ static char *entity_image_files[entity_background_image_last] = {
 void entity_background_switch(entity_background_image_id id);
 void entity_background_init(entity_t *entity);
 void entity_background_free(entity_t *entity);
-void entity_background_draw(entity_t *entity);
 
 #endif
