@@ -5,6 +5,7 @@
 #include <game/entity/definitions/background.h>
 #include <game/entity/definitions/player.h>
 #include <game/collision/bbox.h>
+#include <game/entity/definitions/bug.h>
 #include "game.h"
 #include "entity/manager.h"
 
@@ -70,6 +71,10 @@ int main(int argc, char **argv)
     for (size_t i = 0; i < NUM_SYSTEM_INITIALIZERS; i++) {
         entity_manager_make(system_initializers[i]);
     }
+
+    entity_t *bug = entity_manager_make(entity_bug_init);
+    bug->position.x = 100;
+    bug->position.y = 100;
 
     while (state.running) {
         game_update();

@@ -1,5 +1,6 @@
 #include <gf2d_sprite.h>
 #include "player.h"
+#include "bug.h"
 
 #include <SDL2/SDL.h>
 #include <game/game.h>
@@ -8,6 +9,9 @@
 #define NUM_FRAMES 148
 #define SPRITE_HEIGHT 128
 #define SPRITE_WIDTH 128
+
+entity_t *player = NULL;
+
 
 void entity_player_init(entity_t *entity)
 {
@@ -20,10 +24,17 @@ void entity_player_init(entity_t *entity)
     entity->position.y = 10;
 
     entity->size.x = SPRITE_WIDTH; entity->size.y = SPRITE_HEIGHT;
+
+    player = entity;
 }
 
 void entity_player_touching_wall(entity_t *entity, entity_touch_wall_t wall)
 {
+    if (entity_bug_alive_count() > 0) {
+        printf("Couldn't change stages. Player still has bugs to crush\n");
+        return;
+    }
+
     printf("Player is touching wall!\n");
     Vector2D player_next_stage_pos = entity->position;
 
