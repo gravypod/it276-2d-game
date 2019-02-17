@@ -25,6 +25,21 @@ void entity_player_init(entity_t *entity)
 void entity_player_touching_wall(entity_t *entity, entity_touch_wall_t wall)
 {
     printf("Player is touching wall!\n");
+    Vector2D player_next_stage_pos = entity->position;
+
+    if (wall & entity_touch_wall_top) {
+        player_next_stage_pos.y = (state.view_height - entity->size.y) - 1;
+    } else if (wall & entity_touch_wall_bottom) {
+        player_next_stage_pos.y = 1;
+    }
+
+    if (wall & entity_touch_wall_left) {
+        player_next_stage_pos.x = (state.view_width - entity->size.x) - 1;
+    } else if (wall & entity_touch_wall_right) {
+        player_next_stage_pos.x = 1;
+    }
+
+    entity->position = player_next_stage_pos;
 }
 
 void entity_player_free(entity_t *entity)
