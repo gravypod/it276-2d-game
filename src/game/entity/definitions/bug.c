@@ -10,6 +10,7 @@ size_t bugs_alive;
 
 void entity_bug_init(entity_t *entity)
 {
+    entity->type = entity_type_bug;
     entity->free = entity_bug_free;
     entity->update = entity_bug_update;
 

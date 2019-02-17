@@ -15,6 +15,7 @@ entity_t *player = NULL;
 
 void entity_player_init(entity_t *entity)
 {
+    entity->type = entity_type_player;
     entity->free = entity_player_free;
     entity->update = entity_player_update;
     entity->draw = entity_player_draw;

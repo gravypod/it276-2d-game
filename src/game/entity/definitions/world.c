@@ -4,6 +4,7 @@
 
 void entity_world_init(entity_t *entity)
 {
+    entity->type = entity_type_world;
     entity->free = entity_world_free;
     entity->update = entity_world_update;
     entity->draw = entity_world_draw;

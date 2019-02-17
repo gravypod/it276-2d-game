@@ -39,6 +39,8 @@ typedef struct entity_struct
      */
     size_t id;
 
+    entity_type_t type;
+
     /**
      * Movement speed of an entity
      */

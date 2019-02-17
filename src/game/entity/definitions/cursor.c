@@ -13,6 +13,7 @@ float mouse_rotation = 0.0f;
 
 void entity_cursor_init(entity_t *entity)
 {
+    entity->type = entity_type_cursor;
     entity->free = entity_cursor_free;
     entity->update = entity_cursor_update;
     entity->draw = entity_cursor_draw;

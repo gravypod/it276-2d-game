@@ -22,6 +22,7 @@ void entity_background_switch(entity_background_image_id id)
 
 void entity_background_init(entity_t *entity)
 {
+    entity->type = entity_type_background;
     if (!loaded) {
         entity_background_switch(entity_background_image_default);
         loaded = true;
