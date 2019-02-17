@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <simple_logger.h>
 #include "manager.h"
+#include <game/entity/definitions/player.h>
+#include <game/entity/definitions/cursor.h>
+#include <game/entity/definitions/bug.h>
+#include <game/entity/definitions/background.h>
+#include <game/entity/definitions/world.h>
 
 struct
 {
@@ -25,6 +30,23 @@ struct
      */
     entity_t *entities;
 } entity_pool;
+
+
+const entity_initializer_t constructors[] = {
+        NULL,
+
+        // Actors
+        entity_player_init,
+        entity_bug_init,
+
+        // UI
+        entity_cursor_init,
+
+        // Scene
+        entity_background_init,
+        entity_world_init,
+};
+
 
 bool entity_manager_init()
 {

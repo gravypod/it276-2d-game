@@ -7,10 +7,15 @@
 
 #define MAX_NUM_ENTITIES 128
 
+
+
+extern const entity_initializer_t constructors[];
+
+
 /**
  * Wrap entity_manager_make with casts for simplicity
  */
-#define entity_manager_make(initializer) entity_manager_take((entity_initializer_t) initializer)
+#define entity_manager_make(type) entity_manager_take((entity_initializer_t) constructors[type])
 
 /**
  * Initialize the entity pool

@@ -14,6 +14,21 @@ typedef enum {
     entity_touch_wall_right = 8
 } entity_touch_wall_t;
 
+typedef enum {
+    entity_type_none,
+
+    // Actors
+    entity_type_player,
+    entity_type_bug,
+
+    // UI
+    entity_type_cursor,
+
+    // Scene
+    entity_type_background,
+    entity_type_world,
+} entity_type_t;
+
 /**
  * Abstract definition of an entity
  */
@@ -87,6 +102,7 @@ typedef struct entity_struct
     void (*draw)(struct entity_struct *);
 } entity_t;
 
+
 /**
  * Abstract definition of initialization of an entity
  */
@@ -96,8 +112,6 @@ typedef void (*entity_initializer_t)(entity_t *);
  * Consume and process an entity
  */
 typedef void (*entity_consumer_t)(entity_t *);
-
-
 static inline void entity_touch_wall_to_string(entity_touch_wall_t wall, char sides[5])
 {
     // Reset the string's data

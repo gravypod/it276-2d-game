@@ -11,10 +11,10 @@
 
 
 #define NUM_SYSTEM_INITIALIZERS 3
-entity_initializer_t system_initializers[NUM_SYSTEM_INITIALIZERS] = {
-        entity_background_init,
-        entity_player_init,
-        entity_cursor_init,
+entity_type_t system_initializers[NUM_SYSTEM_INITIALIZERS] = {
+        entity_type_background,
+        entity_type_player,
+        entity_type_cursor,
 };
 
 game_sate_t state = {
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
         entity_manager_make(system_initializers[i]);
     }
 
-    entity_t *bug = entity_manager_make(entity_bug_init);
+    entity_t *bug = entity_manager_make(entity_type_bug);
     bug->position.x = 100;
     bug->position.y = 100;
 
