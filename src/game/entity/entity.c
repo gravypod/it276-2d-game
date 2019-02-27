@@ -98,15 +98,20 @@ void entity_clamp_within_screen(Vector2D *position, entity_t *entity)
 
 void entity_update(entity_t *entity)
 {
-    static int i = 0;
     static Vector2D position;
+    static Vector2D velocity;
 
     if (entity->update) {
         entity->update(entity);
     }
 
+    velocity = entity->velocity;
+
+    vector2d_normalize(&velocity);
+    vector2d_scale(velocity, velocity, entity->speed);
+
     // Add the velocity of the player to the position to enable motion
-    vector2d_add(position, entity->position, entity->velocity);
+    vector2d_add(position, entity->position, velocity);
 
     // TODO: Check if out of world. Then call entity_touching_wall()
     const entity_touch_wall_t touching = entity_check_touching_screen_edge(&position, entity, true);

@@ -10,6 +10,10 @@
 #define SPRITE_HEIGHT 128
 #define SPRITE_WIDTH 128
 
+#define ENTITY_PLAYER_SPEED_SLOW    3
+#define ENTITY_PLAYER_SPEED_NORMAL  5
+#define ENTITY_PLAYER_SPEED_FAST   10
+
 entity_t *player = NULL;
 
 
@@ -25,6 +29,7 @@ void entity_player_init(entity_t *entity)
     entity->position.y = 10;
 
     entity->size.x = SPRITE_WIDTH; entity->size.y = SPRITE_HEIGHT;
+    entity->statuses = entity_player_status_none;
 
     player = entity;
 }
@@ -60,29 +65,48 @@ void entity_player_free(entity_t *entity)
 
 void entity_player_update_position(Vector2D *velocity)
 {
-    int move_speed = 10;
-
     velocity->x = velocity->y = 0;
 
     if (state.keys[SDL_SCANCODE_W]) {
-        velocity->y -= move_speed;
+        velocity->y -= 1;
     }
 
     if (state.keys[SDL_SCANCODE_S]) {
-        velocity->y += move_speed;
+        velocity->y += 1;
     }
 
     if (state.keys[SDL_SCANCODE_A]) {
-        velocity->x -= move_speed;
+        velocity->x -= 1;
     }
 
     if (state.keys[SDL_SCANCODE_D]) {
-        velocity->x += move_speed;
+        velocity->x += 1;
+    }
+}
+
+void entity_player_update_keyboard(entity_t *entity)
+{
+    if (state.keys[SDL_SCANCODE_SPACE]) {
+        entity->statuses |= entity_player_status_speedup;
+    }
+}
+
+void entity_player_update_powerups(entity_t *entity)
+{
+    // Handle speed up, slow down, and normal walk speed
+    if (entity->statuses & entity_player_status_slowdown) {
+        entity->speed = ENTITY_PLAYER_SPEED_SLOW;
+    } else if (entity->statuses & entity_player_status_speedup) {
+        entity->speed = ENTITY_PLAYER_SPEED_FAST;
+    } else {
+        entity->speed = ENTITY_PLAYER_SPEED_NORMAL;
     }
 }
 
 void entity_player_update(entity_t *entity)
 {
+    entity_player_update_keyboard(entity);
+    entity_player_update_powerups(entity);
     entity_player_update_position(&entity->velocity);
 }
 

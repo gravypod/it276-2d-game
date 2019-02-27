@@ -41,6 +41,8 @@ typedef struct entity_struct
 
     entity_type_t type;
 
+    uint32_t statuses;
+
     /**
      * Movement speed of an entity
      */
@@ -66,16 +68,6 @@ typedef struct entity_struct
 
     // Size in width and height of this entity
     Vector2D size;
-
-    /**
-     * The scale in world space of the entity
-     */
-    Vector2D scale;
-
-    /**
-     * The rotation, per axis, in world space of the entity.
-     */
-    float rotation;
 
     /**
      * If this entity is already being used by something
