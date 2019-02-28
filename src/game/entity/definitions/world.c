@@ -1,28 +1,70 @@
 #include "world.h"
+#include "player.h"
 #include <game/game.h>
 #include <game/collision/bbox.h>
+#include <game/entity/manager.h>
 
-#define TILES_X 10
-#define TILES_Y 10
-#define TILES_COUNT (TILES_X * TILES_Y)
+#define WORLD_MAX_BUGS 3
 
-#define TILE_SIZE_X 128
-#define TILE_SIZE_Y 128
+Vector2D world_first_open_position, world_last_open_position;
 
-#define WORLD_X (TILE_SIZE_X * TILES_X)
-#define WORLD_Y (TILE_SIZE_Y * TILES_Y)
+Vector2D tile_size = {
+        TILE_SIZE_X, TILE_SIZE_Y
+};
+
+size_t num_bugs;
+entity_t *bugs[WORLD_MAX_BUGS] = {NULL, NULL, NULL};
 
 bool tiles[TILES_COUNT];
 Sprite *sprite = NULL;
 
-void entity_world_random_valid_point(Vector2D *point)
-{
+bool entity_world_entity_collision_generator(entity_t *entity, Vector2D *position_next, Vector2D *tile) {
+    int i;
+    for (i = ((int) (tile->y * TILES_X) + tile->x); i < TILES_COUNT; i++) {
+        if (!tiles[i]) {
+            continue;
+        }
+
+        const int x = i % TILES_X, y = i / TILES_X;
+
+        const Vector2D top_left_entity = {
+                .x = position_next->x - (entity->size.x / 2.0f),
+                .y = position_next->y - (entity->size.y / 2.0f),
+        };
+        const Vector2D top_left_tile = {
+                (tile_size.x * x) - (TILE_SIZE_X / 2.0f), (tile_size.y * y) - (TILE_SIZE_Y / 2.0f)
+        };
+
+        if (top_left_tile.x < top_left_entity.x + entity->size.x &&
+            top_left_tile.x + TILE_SIZE_X > top_left_entity.x &&
+            top_left_tile.y < top_left_entity.y + entity->size.y &&
+            top_left_tile.y + TILE_SIZE_Y > top_left_entity.y) {
+
+            tile->x = x;
+            tile->y = y;
+
+            return true;
+        }
+
+    }
+
+    tile->x = i % TILES_X;
+    tile->y = i / TILES_X;
+
+    return false;
+}
+
+bool entity_world_entity_is_colliding(entity_t *entity, Vector2D *position) {
+    Vector2D tile = {0, 0};
+    return entity_world_entity_collision_generator(entity, position, &tile);
+}
+
+void entity_world_random_valid_point(Vector2D *point) {
     point->x = (rand() % (TILES_X - 1)) + 1;
     point->y = (rand() % (TILES_Y - 1)) + 1;
 }
 
-bool entity_world_carve_point(bool cave[TILES_COUNT], Vector2D *point, size_t *num_empty)
-{
+bool entity_world_carve_point(bool cave[TILES_COUNT], Vector2D *point, size_t *num_empty) {
     if (point->x == 0 || point->y == 0)
         return false;
 
@@ -35,16 +77,17 @@ bool entity_world_carve_point(bool cave[TILES_COUNT], Vector2D *point, size_t *n
     return true;
 }
 
-void entity_world_burrow(bool cave[TILES_COUNT], float desired_ratio_empty)
-{
+void entity_world_burrow(Vector2D *first_point, Vector2D *last_point, bool cave[TILES_COUNT], float desired_ratio_empty) {
     static Vector2D point;
     size_t num_empty = 0;
 
     // make all tiles wall
     memset(cave, true, sizeof(bool) * (TILES_COUNT));
 
-    entity_world_random_valid_point(&point);
-    entity_world_carve_point(cave, &point, &num_empty);
+    do {
+        entity_world_random_valid_point(&point);
+    } while (!entity_world_carve_point(cave, &point, &num_empty));
+    *first_point = point;
 
     while ((num_empty / ((float) TILES_COUNT)) < desired_ratio_empty) {
         Vector2D tmp = point;
@@ -69,10 +112,32 @@ void entity_world_burrow(bool cave[TILES_COUNT], float desired_ratio_empty)
             point = tmp;
         }
     }
+
+    *last_point = point;
 }
 
-void entity_world_init(entity_t *entity)
+void entity_world_bug_spawn(entity_t *bugs[WORLD_MAX_BUGS], const bool cave[TILES_COUNT], int desired_num_bugs)
 {
+    int num_bugs = 0;
+    for (int i = 0; num_bugs < desired_num_bugs && i < TILES_COUNT; i++) {
+        if (cave[i]) {
+            continue;
+        }
+
+        float chance = (rand() % 10) / 10.f;
+
+        if (chance < 0.8f) { // 50% chance
+            continue;
+        }
+
+        // Make the bug in the world
+        entity_t *bug = bugs[num_bugs++] = entity_manager_make(entity_type_bug);
+        bug->position.x = ((int) (i % TILES_X)) * TILE_SIZE_X;
+        bug->position.y = ((int) (i / TILES_X)) * TILE_SIZE_Y;
+    }
+}
+
+void entity_world_init(entity_t *entity) {
     entity->type = entity_type_world;
     entity->free = entity_world_free;
     entity->update = entity_world_update;
@@ -85,30 +150,22 @@ void entity_world_init(entity_t *entity)
     entity->size.x = WORLD_X;
     entity->size.y = WORLD_Y;
 
-
     // world tile sprite
     sprite = gf2d_sprite_load_all("images/backgrounds/bg_flat.png", TILE_SIZE_X, TILE_SIZE_Y, 1);
 
-    entity_world_burrow(tiles, 0.4f);
+    entity_world_burrow(&world_first_open_position, &world_last_open_position, tiles, 0.4f);
+    entity_world_bug_spawn(bugs, tiles, WORLD_MAX_BUGS);
+}
+
+void entity_world_free(entity_t *entity) {
 
 }
 
-void entity_world_free(entity_t *entity)
-{
+void entity_world_update(entity_t *entity) {
 
 }
 
-void entity_world_update(entity_t *entity)
-{
-
-}
-
-void entity_world_draw(entity_t *entity)
-{
-    Vector2D size = {
-            TILE_SIZE_X, TILE_SIZE_Y
-    };
-
+void entity_world_draw(entity_t *entity) {
     for (int x = 0; x < TILES_X; x++) {
         for (int y = 0; y < TILES_Y; y++) {
             bool exists = tiles[(y * TILES_X) + x];
@@ -117,16 +174,15 @@ void entity_world_draw(entity_t *entity)
             }
 
             Vector2D position = {
-                    size.x * x, size.y * y
+                    tile_size.x * x, tile_size.y * y
             };
 
 
-            draw_centered_around_player(sprite, size, position, NULL, 0);
+            draw_centered_around_player(sprite, tile_size, position, NULL, 0);
         }
     }
 }
 
-void entity_world_touch(entity_t *entity, entity_t *other)
-{
+void entity_world_touch(entity_t *entity, entity_t *other) {
 
 }

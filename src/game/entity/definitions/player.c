@@ -1,6 +1,7 @@
 #include <gf2d_sprite.h>
 #include "player.h"
 #include "bug.h"
+#include "world.h"
 
 #include <SDL2/SDL.h>
 #include <game/game.h>
@@ -32,6 +33,11 @@ void entity_player_init(entity_t *entity)
     entity->statuses = entity_player_status_none;
 
     player = entity;
+
+
+    player->position = world_first_open_position;
+    player->position.x *= TILE_SIZE_X;
+    player->position.y *= TILE_SIZE_Y;
 }
 
 void entity_player_touching_wall(entity_t *entity, entity_touch_wall_t wall)
