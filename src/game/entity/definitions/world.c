@@ -84,9 +84,10 @@ void entity_world_burrow(Vector2D *first_point, Vector2D *last_point, bool cave[
     // make all tiles wall
     memset(cave, true, sizeof(bool) * (TILES_COUNT));
 
-    entity_world_random_valid_point(&point);
+    do {
+        entity_world_random_valid_point(&point);
+    } while (!entity_world_carve_point(cave, &point, &num_empty));
     *first_point = point;
-    entity_world_carve_point(cave, &point, &num_empty);
 
     while ((num_empty / ((float) TILES_COUNT)) < desired_ratio_empty) {
         Vector2D tmp = point;
