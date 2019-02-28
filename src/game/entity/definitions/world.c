@@ -12,15 +12,14 @@
 #define WORLD_X (TILE_SIZE_X * TILES_X)
 #define WORLD_Y (TILE_SIZE_Y * TILES_Y)
 
+Vector2D tile_size = {
+        TILE_SIZE_X, TILE_SIZE_Y
+};
 
 bool tiles[TILES_COUNT];
 Sprite *sprite = NULL;
 
 bool entity_world_entity_collision_generator(entity_t *entity, Vector2D *tile) {
-    Vector2D size = {
-            TILE_SIZE_X, TILE_SIZE_Y
-    };
-
     int x, y = (int) tile->y;
 
     for (x = (int) tile->x; x < TILES_X; x++) {
@@ -36,7 +35,7 @@ bool entity_world_entity_collision_generator(entity_t *entity, Vector2D *tile) {
                     .y = entity->position.y - (entity->size.y / 2.0f),
             };
             Vector2D top_left_tile = {
-                    (size.x * x) - (TILE_SIZE_X / 2.0f), (size.y * y) - (TILE_SIZE_Y / 2.0f)
+                    (tile_size.x * x) - (TILE_SIZE_X / 2.0f), (tile_size.y * y) - (TILE_SIZE_Y / 2.0f)
             };
 
             if (top_left_tile.x < top_left_entity.x + entity->size.x &&
@@ -61,9 +60,6 @@ bool entity_world_entity_collision_generator(entity_t *entity, Vector2D *tile) {
 
 void entity_world_entity_prevent_collision(entity_t *entity)
 {
-    Vector2D size = {
-            TILE_SIZE_X, TILE_SIZE_Y
-    };
     Vector2D tile = {0, 0};
 
 
@@ -75,7 +71,7 @@ void entity_world_entity_prevent_collision(entity_t *entity)
         };
 
         Vector2D top_left_tile = {
-                (size.x * tile.x) - (TILE_SIZE_X / 2.0f), (size.y * tile.y) - (TILE_SIZE_Y / 2.0f)
+                (tile_size.x * tile.x) - (TILE_SIZE_X / 2.0f), (tile_size.y * tile.y) - (TILE_SIZE_Y / 2.0f)
         };
 
 
@@ -88,9 +84,9 @@ void entity_world_entity_prevent_collision(entity_t *entity)
         }
 
         if (top_left_tile.y < top_left_entity.y + entity->size.y) {
-            entity->position.y = (top_left_tile.y - entity->size.y) - 1;
+            entity->position.y = (top_left_tile.y + entity->size.y) - 1;
         } else if (top_left_tile.y + TILE_SIZE_Y > top_left_entity.y) {
-            entity->position.y = (top_left_tile.y + TILE_SIZE_Y) + 1;
+            entity->position.y = (top_left_tile.y - TILE_SIZE_Y) + 1;
         }
     }
 }
@@ -118,7 +114,7 @@ bool entity_world_carve_point(bool cave[TILES_COUNT], Vector2D *point, size_t *n
     return true;
 }
 
-void entity_world_burrow(bool cave[TILES_COUNT], float desired_ratio_empty) {
+void entity_world_burrow(Vector2D *first_point, Vector2D *last_point, bool cave[TILES_COUNT], float desired_ratio_empty) {
     static Vector2D point;
     size_t num_empty = 0;
 
@@ -126,6 +122,7 @@ void entity_world_burrow(bool cave[TILES_COUNT], float desired_ratio_empty) {
     memset(cave, true, sizeof(bool) * (TILES_COUNT));
 
     entity_world_random_valid_point(&point);
+    *first_point = point;
     entity_world_carve_point(cave, &point, &num_empty);
 
     while ((num_empty / ((float) TILES_COUNT)) < desired_ratio_empty) {
@@ -151,6 +148,8 @@ void entity_world_burrow(bool cave[TILES_COUNT], float desired_ratio_empty) {
             point = tmp;
         }
     }
+
+    *last_point = point;
 }
 
 void entity_world_init(entity_t *entity) {
@@ -169,7 +168,10 @@ void entity_world_init(entity_t *entity) {
     // world tile sprite
     sprite = gf2d_sprite_load_all("images/backgrounds/bg_flat.png", TILE_SIZE_X, TILE_SIZE_Y, 1);
 
-    entity_world_burrow(tiles, 0.4f);
+    Vector2D first, last;
+
+    entity_world_burrow(&first, &last, tiles, 0.4f);
+
 
 }
 
@@ -182,10 +184,6 @@ void entity_world_update(entity_t *entity) {
 }
 
 void entity_world_draw(entity_t *entity) {
-    Vector2D size = {
-            TILE_SIZE_X, TILE_SIZE_Y
-    };
-
     for (int x = 0; x < TILES_X; x++) {
         for (int y = 0; y < TILES_Y; y++) {
             bool exists = tiles[(y * TILES_X) + x];
@@ -194,11 +192,11 @@ void entity_world_draw(entity_t *entity) {
             }
 
             Vector2D position = {
-                    size.x * x, size.y * y
+                    tile_size.x * x, tile_size.y * y
             };
 
 
-            draw_centered_around_player(sprite, size, position, NULL, 0);
+            draw_centered_around_player(sprite, tile_size, position, NULL, 0);
         }
     }
 }
