@@ -1,6 +1,7 @@
 #include <string.h>
 #include <game/game.h>
 #include <game/entity/definitions/player.h>
+#include <game/entity/definitions/world.h>
 #include "entity.h"
 
 
@@ -46,6 +47,8 @@ void entity_update(entity_t *entity) {
 
     // Set the position into the entity position.
     vector2d_scale(entity->position, position, 1.0f);
+
+    entity_world_entity_prevent_collision(entity);
 }
 
 void entity_touching_wall(entity_t *entity, entity_touch_wall_t wall) {

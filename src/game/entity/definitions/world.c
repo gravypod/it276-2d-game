@@ -6,23 +6,106 @@
 #define TILES_Y 10
 #define TILES_COUNT (TILES_X * TILES_Y)
 
-#define TILE_SIZE_X 128
-#define TILE_SIZE_Y 128
+#define TILE_SIZE_X (128 + 32)
+#define TILE_SIZE_Y (128 + 32)
 
 #define WORLD_X (TILE_SIZE_X * TILES_X)
 #define WORLD_Y (TILE_SIZE_Y * TILES_Y)
 
+
 bool tiles[TILES_COUNT];
 Sprite *sprite = NULL;
 
-void entity_world_random_valid_point(Vector2D *point)
+bool entity_world_entity_collision_generator(entity_t *entity, Vector2D *tile) {
+    Vector2D size = {
+            TILE_SIZE_X, TILE_SIZE_Y
+    };
+
+    int x, y = (int) tile->y;
+
+    for (x = (int) tile->x; x < TILES_X; x++) {
+        for (y = (int) tile->y; y < TILES_Y; y++) {
+            bool exists = tiles[(y * TILES_X) + x];
+
+            if (!exists) {
+                continue;
+            }
+
+            Vector2D top_left_entity = {
+                    .x = entity->position.x - (entity->size.x / 2.0f),
+                    .y = entity->position.y - (entity->size.y / 2.0f),
+            };
+            Vector2D top_left_tile = {
+                    (size.x * x) - (TILE_SIZE_X / 2.0f), (size.y * y) - (TILE_SIZE_Y / 2.0f)
+            };
+
+            if (top_left_tile.x < top_left_entity.x + entity->size.x &&
+                top_left_tile.x + TILE_SIZE_X > top_left_entity.x &&
+                top_left_tile.y < top_left_entity.y + entity->size.y &&
+                top_left_tile.y + TILE_SIZE_Y > top_left_entity.y) {
+
+                tile->x = x;
+                tile->y = y;
+
+                return true;
+            }
+
+        }
+    }
+
+    tile->x = x;
+    tile->y = y;
+
+    return false;
+}
+
+void entity_world_entity_prevent_collision(entity_t *entity)
 {
+    Vector2D size = {
+            TILE_SIZE_X, TILE_SIZE_Y
+    };
+    Vector2D tile = {0, 0};
+
+
+    while (entity_world_entity_collision_generator(entity, &tile)) {
+
+        Vector2D top_left_entity = {
+                .x = entity->position.x - (entity->size.x / 2.0f),
+                .y = entity->position.y - (entity->size.y / 2.0f),
+        };
+
+        Vector2D top_left_tile = {
+                (size.x * tile.x) - (TILE_SIZE_X / 2.0f), (size.y * tile.y) - (TILE_SIZE_Y / 2.0f)
+        };
+
+
+        if (top_left_tile.x < top_left_entity.x + entity->size.x) {
+            // x -> |
+            entity->position.x = (top_left_tile.x + TILE_SIZE_X) + .1f;
+        } else if (top_left_tile.x + TILE_SIZE_X > top_left_entity.x) {
+            // | <- x
+            entity->position.x = (top_left_tile.x - entity->size.x) - 1;
+        }
+
+        if (top_left_tile.y < top_left_entity.y + entity->size.y) {
+            entity->position.y = (top_left_tile.y - entity->size.y) - 1;
+        } else if (top_left_tile.y + TILE_SIZE_Y > top_left_entity.y) {
+            entity->position.y = (top_left_tile.y + TILE_SIZE_Y) + 1;
+        }
+    }
+}
+
+bool entity_world_entity_is_colliding(entity_t *entity) {
+    Vector2D tile = {0, 0};
+    return entity_world_entity_collision_generator(entity, &tile);
+}
+
+void entity_world_random_valid_point(Vector2D *point) {
     point->x = (rand() % (TILES_X - 1)) + 1;
     point->y = (rand() % (TILES_Y - 1)) + 1;
 }
 
-bool entity_world_carve_point(bool cave[TILES_COUNT], Vector2D *point, size_t *num_empty)
-{
+bool entity_world_carve_point(bool cave[TILES_COUNT], Vector2D *point, size_t *num_empty) {
     if (point->x == 0 || point->y == 0)
         return false;
 
@@ -35,8 +118,7 @@ bool entity_world_carve_point(bool cave[TILES_COUNT], Vector2D *point, size_t *n
     return true;
 }
 
-void entity_world_burrow(bool cave[TILES_COUNT], float desired_ratio_empty)
-{
+void entity_world_burrow(bool cave[TILES_COUNT], float desired_ratio_empty) {
     static Vector2D point;
     size_t num_empty = 0;
 
@@ -71,8 +153,7 @@ void entity_world_burrow(bool cave[TILES_COUNT], float desired_ratio_empty)
     }
 }
 
-void entity_world_init(entity_t *entity)
-{
+void entity_world_init(entity_t *entity) {
     entity->type = entity_type_world;
     entity->free = entity_world_free;
     entity->update = entity_world_update;
@@ -85,7 +166,6 @@ void entity_world_init(entity_t *entity)
     entity->size.x = WORLD_X;
     entity->size.y = WORLD_Y;
 
-
     // world tile sprite
     sprite = gf2d_sprite_load_all("images/backgrounds/bg_flat.png", TILE_SIZE_X, TILE_SIZE_Y, 1);
 
@@ -93,18 +173,15 @@ void entity_world_init(entity_t *entity)
 
 }
 
-void entity_world_free(entity_t *entity)
-{
+void entity_world_free(entity_t *entity) {
 
 }
 
-void entity_world_update(entity_t *entity)
-{
+void entity_world_update(entity_t *entity) {
 
 }
 
-void entity_world_draw(entity_t *entity)
-{
+void entity_world_draw(entity_t *entity) {
     Vector2D size = {
             TILE_SIZE_X, TILE_SIZE_Y
     };
@@ -126,7 +203,6 @@ void entity_world_draw(entity_t *entity)
     }
 }
 
-void entity_world_touch(entity_t *entity, entity_t *other)
-{
+void entity_world_touch(entity_t *entity, entity_t *other) {
 
 }

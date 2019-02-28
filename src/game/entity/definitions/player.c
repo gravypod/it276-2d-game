@@ -1,6 +1,7 @@
 #include <gf2d_sprite.h>
 #include "player.h"
 #include "bug.h"
+#include "world.h"
 
 #include <SDL2/SDL.h>
 #include <game/game.h>
