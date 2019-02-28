@@ -6,6 +6,7 @@
 #include <game/entity/definitions/player.h>
 #include <game/collision/bbox.h>
 #include <game/entity/definitions/bug.h>
+#include <game/entity/definitions/world.h>
 #include "game.h"
 #include "entity/manager.h"
 
@@ -13,11 +14,9 @@
 #define NUM_SYSTEM_INITIALIZERS 3
 entity_type_t system_initializers[NUM_SYSTEM_INITIALIZERS] = {
         //entity_type_background,
-
-        entity_type_player,
         entity_type_world,
         entity_type_cursor,
-
+        entity_type_player,
 };
 
 game_sate_t state = {
@@ -74,10 +73,6 @@ int main(int argc, char **argv)
     for (size_t i = 0; i < NUM_SYSTEM_INITIALIZERS; i++) {
         entity_manager_make(system_initializers[i]);
     }
-
-    entity_t *bug = entity_manager_make(entity_type_bug);
-    bug->position.x = 100;
-    bug->position.y = 100;
 
     while (state.running) {
         game_update();

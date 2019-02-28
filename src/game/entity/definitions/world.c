@@ -2,20 +2,18 @@
 #include "player.h"
 #include <game/game.h>
 #include <game/collision/bbox.h>
+#include <game/entity/manager.h>
 
-#define TILES_X 10
-#define TILES_Y 10
-#define TILES_COUNT (TILES_X * TILES_Y)
+#define WORLD_MAX_BUGS 3
 
-#define TILE_SIZE_X (128 + 32)
-#define TILE_SIZE_Y (128 + 32)
-
-#define WORLD_X (TILE_SIZE_X * TILES_X)
-#define WORLD_Y (TILE_SIZE_Y * TILES_Y)
+Vector2D world_first_open_position, world_last_open_position;
 
 Vector2D tile_size = {
         TILE_SIZE_X, TILE_SIZE_Y
 };
+
+size_t num_bugs;
+entity_t *bugs[WORLD_MAX_BUGS] = {NULL, NULL, NULL};
 
 bool tiles[TILES_COUNT];
 Sprite *sprite = NULL;
@@ -54,28 +52,6 @@ bool entity_world_entity_collision_generator(entity_t *entity, Vector2D *positio
     tile->y = i / TILES_X;
 
     return false;
-}
-
-void entity_world_entity_prevent_collidion(entity_t *entity, Vector2D *position) {
-    Vector2D entity_position = *position;
-    Vector2D tile = {0, 0};
-    while (entity_world_entity_collision_generator(entity, &entity_position, &tile)) {
-        Vector2D tile_position = {
-                (tile_size.x * tile.x), (tile_size.y * tile.y)
-        };
-
-        Vector2D difference;
-        vector2d_sub(difference, entity_position, tile_position);
-
-        if (difference.x > 0) {
-            entity_position.x += (difference.x - entity->size.x);
-        } else {
-            return; //entity_position.x += (difference.x + entity->size.x);
-        }
-
-    }
-
-    *position = entity_position;
 }
 
 bool entity_world_entity_is_colliding(entity_t *entity, Vector2D *position) {
@@ -139,6 +115,27 @@ void entity_world_burrow(Vector2D *first_point, Vector2D *last_point, bool cave[
     *last_point = point;
 }
 
+void entity_world_bug_spawn(entity_t *bugs[WORLD_MAX_BUGS], const bool cave[TILES_COUNT], int desired_num_bugs)
+{
+    int num_bugs = 0;
+    for (int i = 0; num_bugs < desired_num_bugs && i < TILES_COUNT; i++) {
+        if (cave[i]) {
+            continue;
+        }
+
+        float chance = (rand() % 10) / 10.f;
+
+        if (chance < 0.8f) { // 50% chance
+            continue;
+        }
+
+        // Make the bug in the world
+        entity_t *bug = bugs[num_bugs++] = entity_manager_make(entity_type_bug);
+        bug->position.x = ((int) (i % TILES_X)) * TILE_SIZE_X;
+        bug->position.y = ((int) (i / TILES_X)) * TILE_SIZE_Y;
+    }
+}
+
 void entity_world_init(entity_t *entity) {
     entity->type = entity_type_world;
     entity->free = entity_world_free;
@@ -155,16 +152,8 @@ void entity_world_init(entity_t *entity) {
     // world tile sprite
     sprite = gf2d_sprite_load_all("images/backgrounds/bg_flat.png", TILE_SIZE_X, TILE_SIZE_Y, 1);
 
-    Vector2D first, last;
-
-    entity_world_burrow(&first, &last, tiles, 0.4f);
-
-    player->position = first;
-    player->position.x *= TILE_SIZE_X;
-    player->position.y *= TILE_SIZE_Y;
-
-    //player->position.x += player->size.x / 2.0f;
-    //player->position.y += player->size.y / 2.0f;
+    entity_world_burrow(&world_first_open_position, &world_last_open_position, tiles, 0.4f);
+    entity_world_bug_spawn(bugs, tiles, WORLD_MAX_BUGS);
 }
 
 void entity_world_free(entity_t *entity) {
