@@ -45,10 +45,12 @@ void entity_update(entity_t *entity) {
     // Add the velocity of the player to the position to enable motion
     vector2d_add(position, entity->position, velocity);
 
-    // Set the position into the entity position.
-    vector2d_scale(entity->position, position, 1.0f);
-
-    //entity_world_entity_prevent_collision(entity);
+    if (entity_world_entity_is_colliding(entity, &position)) {
+        printf("Not setting possition. Will be colliding\n");
+    } else {
+        // Set the position into the entity position.
+        vector2d_scale(entity->position, position, 1.0f);
+    }
 }
 
 void entity_touching_wall(entity_t *entity, entity_touch_wall_t wall) {

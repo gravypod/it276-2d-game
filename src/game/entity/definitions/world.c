@@ -1,4 +1,5 @@
 #include "world.h"
+#include "player.h"
 #include <game/game.h>
 #include <game/collision/bbox.h>
 
@@ -19,7 +20,7 @@ Vector2D tile_size = {
 bool tiles[TILES_COUNT];
 Sprite *sprite = NULL;
 
-bool entity_world_entity_collision_generator(entity_t *entity, Vector2D *tile) {
+bool entity_world_entity_collision_generator(entity_t *entity, Vector2D *position_next, Vector2D *tile) {
     int x, y = (int) tile->y;
 
     for (x = (int) tile->x; x < TILES_X; x++) {
@@ -31,8 +32,8 @@ bool entity_world_entity_collision_generator(entity_t *entity, Vector2D *tile) {
             }
 
             Vector2D top_left_entity = {
-                    .x = entity->position.x - (entity->size.x / 2.0f),
-                    .y = entity->position.y - (entity->size.y / 2.0f),
+                    .x = position_next->x - (entity->size.x / 2.0f),
+                    .y = position_next->y - (entity->size.y / 2.0f),
             };
             Vector2D top_left_tile = {
                     (tile_size.x * x) - (TILE_SIZE_X / 2.0f), (tile_size.y * y) - (TILE_SIZE_Y / 2.0f)
@@ -58,42 +59,9 @@ bool entity_world_entity_collision_generator(entity_t *entity, Vector2D *tile) {
     return false;
 }
 
-void entity_world_entity_prevent_collision(entity_t *entity)
-{
+bool entity_world_entity_is_colliding(entity_t *entity, Vector2D *position) {
     Vector2D tile = {0, 0};
-
-
-    while (entity_world_entity_collision_generator(entity, &tile)) {
-
-        Vector2D top_left_entity = {
-                .x = entity->position.x - (entity->size.x / 2.0f),
-                .y = entity->position.y - (entity->size.y / 2.0f),
-        };
-
-        Vector2D top_left_tile = {
-                (tile_size.x * tile.x) - (TILE_SIZE_X / 2.0f), (tile_size.y * tile.y) - (TILE_SIZE_Y / 2.0f)
-        };
-
-
-        if (top_left_tile.x < top_left_entity.x + entity->size.x) {
-            // x -> |
-            entity->position.x = (top_left_tile.x + TILE_SIZE_X) + .1f;
-        } else if (top_left_tile.x + TILE_SIZE_X > top_left_entity.x) {
-            // | <- x
-            entity->position.x = (top_left_tile.x - entity->size.x) - 1;
-        }
-
-        if (top_left_tile.y < top_left_entity.y + entity->size.y) {
-            entity->position.y = (top_left_tile.y + entity->size.y) - 1;
-        } else if (top_left_tile.y + TILE_SIZE_Y > top_left_entity.y) {
-            entity->position.y = (top_left_tile.y - TILE_SIZE_Y) + 1;
-        }
-    }
-}
-
-bool entity_world_entity_is_colliding(entity_t *entity) {
-    Vector2D tile = {0, 0};
-    return entity_world_entity_collision_generator(entity, &tile);
+    return entity_world_entity_collision_generator(entity, position, &tile);
 }
 
 void entity_world_random_valid_point(Vector2D *point) {
@@ -172,7 +140,12 @@ void entity_world_init(entity_t *entity) {
 
     entity_world_burrow(&first, &last, tiles, 0.4f);
 
+    player->position = first;
+    player->position.x *= TILE_SIZE_X;
+    player->position.y *= TILE_SIZE_Y;
 
+    //player->position.x += player->size.x / 2.0f;
+    //player->position.y += player->size.y / 2.0f;
 }
 
 void entity_world_free(entity_t *entity) {
