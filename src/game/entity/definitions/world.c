@@ -21,42 +21,61 @@ bool tiles[TILES_COUNT];
 Sprite *sprite = NULL;
 
 bool entity_world_entity_collision_generator(entity_t *entity, Vector2D *position_next, Vector2D *tile) {
-    int x, y = (int) tile->y;
-
-    for (x = (int) tile->x; x < TILES_X; x++) {
-        for (y = (int) tile->y; y < TILES_Y; y++) {
-            bool exists = tiles[(y * TILES_X) + x];
-
-            if (!exists) {
-                continue;
-            }
-
-            Vector2D top_left_entity = {
-                    .x = position_next->x - (entity->size.x / 2.0f),
-                    .y = position_next->y - (entity->size.y / 2.0f),
-            };
-            Vector2D top_left_tile = {
-                    (tile_size.x * x) - (TILE_SIZE_X / 2.0f), (tile_size.y * y) - (TILE_SIZE_Y / 2.0f)
-            };
-
-            if (top_left_tile.x < top_left_entity.x + entity->size.x &&
-                top_left_tile.x + TILE_SIZE_X > top_left_entity.x &&
-                top_left_tile.y < top_left_entity.y + entity->size.y &&
-                top_left_tile.y + TILE_SIZE_Y > top_left_entity.y) {
-
-                tile->x = x;
-                tile->y = y;
-
-                return true;
-            }
-
+    int i;
+    for (i = ((int) (tile->y * TILES_X) + tile->x); i < TILES_COUNT; i++) {
+        if (!tiles[i]) {
+            continue;
         }
+
+        const int x = i % TILES_X, y = i / TILES_X;
+
+        const Vector2D top_left_entity = {
+                .x = position_next->x - (entity->size.x / 2.0f),
+                .y = position_next->y - (entity->size.y / 2.0f),
+        };
+        const Vector2D top_left_tile = {
+                (tile_size.x * x) - (TILE_SIZE_X / 2.0f), (tile_size.y * y) - (TILE_SIZE_Y / 2.0f)
+        };
+
+        if (top_left_tile.x < top_left_entity.x + entity->size.x &&
+            top_left_tile.x + TILE_SIZE_X > top_left_entity.x &&
+            top_left_tile.y < top_left_entity.y + entity->size.y &&
+            top_left_tile.y + TILE_SIZE_Y > top_left_entity.y) {
+
+            tile->x = x;
+            tile->y = y;
+
+            return true;
+        }
+
     }
 
-    tile->x = x;
-    tile->y = y;
+    tile->x = i % TILES_X;
+    tile->y = i / TILES_X;
 
     return false;
+}
+
+void entity_world_entity_prevent_collidion(entity_t *entity, Vector2D *position) {
+    Vector2D entity_position = *position;
+    Vector2D tile = {0, 0};
+    while (entity_world_entity_collision_generator(entity, &entity_position, &tile)) {
+        Vector2D tile_position = {
+                (tile_size.x * tile.x), (tile_size.y * tile.y)
+        };
+
+        Vector2D difference;
+        vector2d_sub(difference, entity_position, tile_position);
+
+        if (difference.x > 0) {
+            entity_position.x += (difference.x - entity->size.x);
+        } else {
+            return; //entity_position.x += (difference.x + entity->size.x);
+        }
+
+    }
+
+    *position = entity_position;
 }
 
 bool entity_world_entity_is_colliding(entity_t *entity, Vector2D *position) {

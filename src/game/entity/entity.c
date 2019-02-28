@@ -46,11 +46,21 @@ void entity_update(entity_t *entity) {
     vector2d_add(position, entity->position, velocity);
 
     if (entity_world_entity_is_colliding(entity, &position)) {
-        printf("Not setting possition. Will be colliding\n");
-    } else {
-        // Set the position into the entity position.
+        Vector2D velocity_no_x = {.x = 0, .y = velocity.y};
+        Vector2D velocity_no_y = {.x = velocity.x, .y = 0};
+
+        // Try to cancel x movement.
+        vector2d_add(position, entity->position, velocity_no_x);
+        if (entity_world_entity_is_colliding(entity, &position)) {
+            vector2d_add(position, entity->position, velocity_no_y);
+        }
+    }
+
+    // Set the position into the entity position.
+    if (!entity_world_entity_is_colliding(entity, &position)) {
         vector2d_scale(entity->position, position, 1.0f);
     }
+
 }
 
 void entity_touching_wall(entity_t *entity, entity_touch_wall_t wall) {
