@@ -12,9 +12,11 @@
 
 #define NUM_SYSTEM_INITIALIZERS 3
 entity_type_t system_initializers[NUM_SYSTEM_INITIALIZERS] = {
-        entity_type_background,
+        //entity_type_background,
+        entity_type_world,
         entity_type_player,
         entity_type_cursor,
+
 };
 
 game_sate_t state = {

@@ -150,5 +150,8 @@ void entity_touching(entity_t *entity, entity_t *other);
 void entity_touching_wall(entity_t *entity, entity_touch_wall_t wall);
 void entity_draw(entity_t *entity);
 
+void draw_centered_around_player(Sprite *sprite, Vector2D entity_size, Vector2D entity_position, Vector4D *entity_color,
+                                 Uint32 frame);
+
 #endif
 
