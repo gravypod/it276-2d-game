@@ -31,13 +31,22 @@ void entity_youdied_render_message(TTF_Font *font, char *message, int scale) {
 
 void entity_youdied_init(entity_t *entity) {
     entity->draw = entity_youdied_draw;
+    entity->free = entity_youdied_free;
     entity->type = entity_type_youdied;
-
     TTF_Init();
     font_cached = TTF_OpenFont("./fonts/ComicNeue-Regular.ttf", 64);
 
+    if (!font_cached) {
+        printf("Failed to load TTF from disk.\n");
+    }
 }
 
 void entity_youdied_draw(entity_t *entity) {
     entity_youdied_render_message(font_cached, "You Died!", 3);
+}
+
+void entity_youdied_free(entity_t *entity) {
+    if (font_cached) {
+        TTF_CloseFont(font_cached);
+    }
 }
