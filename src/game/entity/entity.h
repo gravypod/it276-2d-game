@@ -27,6 +27,8 @@ typedef enum {
     // Scene
     entity_type_background,
     entity_type_world,
+
+    entity_type_youdied,
 } entity_type_t;
 
 /**

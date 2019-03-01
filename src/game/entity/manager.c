@@ -6,6 +6,7 @@
 #include <game/entity/definitions/bug.h>
 #include <game/entity/definitions/background.h>
 #include <game/entity/definitions/world.h>
+#include <game/entity/definitions/youdied.h>
 
 struct
 {
@@ -45,6 +46,8 @@ const entity_initializer_t constructors[] = {
         // Scene
         entity_background_init,
         entity_world_init,
+
+        entity_youdied_init,
 };
 
 

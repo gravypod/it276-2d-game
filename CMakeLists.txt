@@ -27,7 +27,7 @@ add_executable(
         src/gf2d_vector.c
 
         # Source file libraries
-        src/simple_logger.c src/game/entity/definitions/cursor.c src/game/entity/definitions/cursor.h src/game/entity/definitions/background.c src/game/entity/definitions/background.h src/game/entity/definitions/player.c src/game/entity/definitions/player.h src/game/entity/definitions/world.c src/game/entity/definitions/world.h src/game/collision/bbox.c src/game/collision/bbox.h src/game/entity/definitions/bug.c src/game/entity/definitions/bug.h)
+        src/simple_logger.c src/game/entity/definitions/cursor.c src/game/entity/definitions/cursor.h src/game/entity/definitions/background.c src/game/entity/definitions/background.h src/game/entity/definitions/player.c src/game/entity/definitions/player.h src/game/entity/definitions/world.c src/game/entity/definitions/world.h src/game/collision/bbox.c src/game/collision/bbox.h src/game/entity/definitions/bug.c src/game/entity/definitions/bug.h src/game/entity/definitions/youdied.c src/game/entity/definitions/youdied.h)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/include" ${SDL2_INCLUDE_DIR}
                     ${SDL2_IMAGE_INCLUDE_DIR}
