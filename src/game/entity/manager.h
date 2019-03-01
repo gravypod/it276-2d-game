@@ -43,6 +43,8 @@ entity_t *entity_manager_take(entity_initializer_t initializer);
  */
 bool entity_manager_iterate_generator(size_t *last_entity_index, bool only_allocated, entity_t **entity);
 
+void entity_manager_release(entity_t *entity);
+
 /**
  * Run a function against every allocated entity
  * @param consumer

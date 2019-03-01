@@ -28,6 +28,8 @@ void entity_free(entity_t *entity) {
     if (entity->sprite) {
         gf2d_sprite_free(entity->sprite);
     }
+
+    entity->allocated = false;
 }
 
 void entity_update_collision(entity_t *entity)

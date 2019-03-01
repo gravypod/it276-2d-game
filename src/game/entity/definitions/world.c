@@ -12,9 +12,6 @@ Vector2D tile_size = {
         TILE_SIZE_X, TILE_SIZE_Y
 };
 
-size_t num_bugs;
-entity_t *bugs[WORLD_MAX_BUGS] = {NULL, NULL, NULL};
-
 bool tiles[TILES_COUNT];
 Sprite *sprite = NULL;
 
@@ -116,7 +113,7 @@ void entity_world_burrow(Vector2D *first_point, Vector2D *last_point, bool cave[
     *last_point = point;
 }
 
-void entity_world_bug_spawn(entity_t *bugs[WORLD_MAX_BUGS], const bool cave[TILES_COUNT], int desired_num_bugs)
+void entity_world_bug_spawn(const bool cave[TILES_COUNT], int desired_num_bugs)
 {
     int num_bugs = 0;
     for (int i = 0; num_bugs < desired_num_bugs && i < TILES_COUNT; i++) {
@@ -130,8 +127,10 @@ void entity_world_bug_spawn(entity_t *bugs[WORLD_MAX_BUGS], const bool cave[TILE
             continue;
         }
 
+        num_bugs++;
+
         // Make the bug in the world
-        entity_t *bug = bugs[num_bugs++] = entity_manager_make(entity_type_bug);
+        entity_t *bug = entity_manager_make(entity_type_bug);
         bug->position.x = ((int) (i % TILES_X)) * TILE_SIZE_X;
         bug->position.y = ((int) (i / TILES_X)) * TILE_SIZE_Y;
     }
@@ -154,7 +153,7 @@ void entity_world_init(entity_t *entity) {
     sprite = gf2d_sprite_load_all("images/backgrounds/bg_flat.png", TILE_SIZE_X, TILE_SIZE_Y, 1);
 
     entity_world_burrow(&world_first_open_position, &world_last_open_position, tiles, 0.4f);
-    entity_world_bug_spawn(bugs, tiles, WORLD_MAX_BUGS);
+    entity_world_bug_spawn(tiles, WORLD_MAX_BUGS);
 }
 
 void entity_world_free(entity_t *entity) {

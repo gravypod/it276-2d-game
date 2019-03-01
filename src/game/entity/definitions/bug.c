@@ -1,3 +1,4 @@
+#include <game/entity/manager.h>
 #include "bug.h"
 #include "player.h"
 
@@ -17,7 +18,7 @@ void entity_bug_init(entity_t *entity)
 
     entity->sprite_frame = 0;
     entity->sprite = gf2d_sprite_load_all("images/space_bug_top.png", SPRITE_WIDTH, SPRITE_HEIGHT, 16);
-    entity->size.x = SPRITE_WIDTH; entity->size.y = SPRITE_HEIGHT;
+    entity->size.x = SPRITE_WIDTH - 30; entity->size.y = SPRITE_HEIGHT;
 
     entity->speed = ENTITY_BUG_SPEED_NORMAL;
     bugs_alive++;
@@ -29,7 +30,9 @@ void entity_bug_touching(entity_t *entity, entity_t *them)
         return;
     }
 
-    printf("Bug is touching entity\n");
+    printf("Bug is touching entity (%li -> %li)\n", entity->id, them->id);
+    them->health -= 1;
+    entity_manager_release(entity);
 }
 
 void entity_bug_free(entity_t *entity)

@@ -129,6 +129,12 @@ bool entity_manager_iterate_generator(size_t *last_entity_index, bool only_alloc
     return false;
 }
 
+void entity_manager_release(entity_t *entity)
+{
+    entity_free(entity);
+    entity_pool.freed_entities++;
+}
+
 void entity_manager_for_each(entity_consumer_t consumer, bool only_allocated)
 {
     size_t remaining_freed_entities = entity_pool.freed_entities;
