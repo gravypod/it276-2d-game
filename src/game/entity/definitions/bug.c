@@ -12,6 +12,7 @@ void entity_bug_init(entity_t *entity)
 {
     entity->type = entity_type_bug;
     entity->free = entity_bug_free;
+    entity->touching = entity_bug_touching;
     entity->update = entity_bug_update;
 
     entity->sprite_frame = 0;
@@ -20,6 +21,15 @@ void entity_bug_init(entity_t *entity)
 
     entity->speed = ENTITY_BUG_SPEED_NORMAL;
     bugs_alive++;
+}
+
+void entity_bug_touching(entity_t *entity, entity_t *them)
+{
+    if (them->id != player->id) {
+        return;
+    }
+
+    printf("Bug is touching entity\n");
 }
 
 void entity_bug_free(entity_t *entity)

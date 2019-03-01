@@ -4,7 +4,7 @@
 #include <game/collision/bbox.h>
 #include <game/entity/manager.h>
 
-#define WORLD_MAX_BUGS 3
+#define WORLD_MAX_BUGS 1
 
 Vector2D world_first_open_position, world_last_open_position;
 
