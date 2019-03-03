@@ -6,6 +6,7 @@
 #include <game/entity/definitions/bug.h>
 #include <game/entity/definitions/background.h>
 #include <game/entity/definitions/world.h>
+#include <game/entity/definitions/youdied.h>
 
 struct
 {
@@ -45,6 +46,8 @@ const entity_initializer_t constructors[] = {
         // Scene
         entity_background_init,
         entity_world_init,
+
+        entity_youdied_init,
 };
 
 
@@ -127,6 +130,12 @@ bool entity_manager_iterate_generator(size_t *last_entity_index, bool only_alloc
     }
 
     return false;
+}
+
+void entity_manager_release(entity_t *entity)
+{
+    entity_free(entity);
+    entity_pool.freed_entities++;
 }
 
 void entity_manager_for_each(entity_consumer_t consumer, bool only_allocated)

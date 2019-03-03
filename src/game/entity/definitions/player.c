@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 #include <game/game.h>
 #include <simple_logger.h>
+#include <game/entity/manager.h>
 
 #define NUM_FRAMES 148
 #define SPRITE_HEIGHT 128
@@ -29,15 +30,16 @@ void entity_player_init(entity_t *entity)
     entity->position.x = 10;
     entity->position.y = 10;
 
-    entity->size.x = SPRITE_WIDTH; entity->size.y = SPRITE_HEIGHT;
+    entity->size.x = SPRITE_WIDTH - 20; entity->size.y = SPRITE_HEIGHT - 10;
     entity->statuses = entity_player_status_none;
 
+    entity->position = world_first_open_position;
+    entity->position.x *= TILE_SIZE_X;
+    entity->position.y *= TILE_SIZE_Y;
+
+    entity->health = 100;
+
     player = entity;
-
-
-    player->position = world_first_open_position;
-    player->position.x *= TILE_SIZE_X;
-    player->position.y *= TILE_SIZE_Y;
 }
 
 void entity_player_touching_wall(entity_t *entity, entity_touch_wall_t wall)
@@ -67,6 +69,7 @@ void entity_player_touching_wall(entity_t *entity, entity_touch_wall_t wall)
 
 void entity_player_free(entity_t *entity)
 {
+    entity_manager_make(entity_type_youdied);
 }
 
 void entity_player_update_position(Vector2D *velocity)
@@ -114,6 +117,11 @@ void entity_player_update(entity_t *entity)
     entity_player_update_keyboard(entity);
     entity_player_update_powerups(entity);
     entity_player_update_position(&entity->velocity);
+
+
+    if (entity->health <= 0) {
+        entity_manager_release(entity);
+    }
 }
 
 void entity_player_draw(entity_t *entity)

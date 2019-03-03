@@ -3,6 +3,7 @@
 #include <game/entity/definitions/player.h>
 #include <game/entity/definitions/world.h>
 #include "entity.h"
+#include "manager.h"
 
 
 void entity_clear(entity_t *e) {
@@ -26,6 +27,38 @@ void entity_free(entity_t *entity) {
 
     if (entity->sprite) {
         gf2d_sprite_free(entity->sprite);
+    }
+
+    entity->allocated = false;
+}
+
+void entity_update_collision(entity_t *entity)
+{
+    size_t entity_id = 0;
+    entity_t *other;
+
+    while (entity_manager_iterate_generator(&entity_id, true, &other)) {
+        if (entity_id == entity->id) {
+            continue;
+        }
+
+
+        const Vector2D top_left_entity = {
+                .x = entity->position.x - (entity->size.x / 2.0f),
+                .y = entity->position.y - (entity->size.y / 2.0f),
+        };
+        const Vector2D top_left_other = {
+                .x = other->position.x - (other->size.x / 2.0f),
+                .y = other->position.y - (other->size.y / 2.0f),
+        };
+
+        if (top_left_other.x < top_left_entity.x + entity->size.x &&
+            top_left_other.x + other->size.x > top_left_entity.x &&
+            top_left_other.y < top_left_entity.y + entity->size.y &&
+            top_left_other.y + other->size.y > top_left_entity.y) {
+
+            entity_touching(entity, other);
+        }
     }
 }
 
@@ -59,6 +92,7 @@ void entity_update(entity_t *entity) {
     // Set the position into the entity position.
     if (!entity_world_entity_is_colliding(entity, &position)) {
         vector2d_scale(entity->position, position, 1.0f);
+        entity_update_collision(entity);
     }
 
 }
