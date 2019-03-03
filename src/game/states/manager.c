@@ -24,6 +24,10 @@ void game_state_manager_set(game_state_type type)
         // Find the state we want to go to
         game_state *next = game_states[type];
 
+        if (next == NULL) {
+                return;
+        }
+
         // Create all of the entities
         for (int i = 0; i < next->num_initializers; i++) {
                 entity_manager_make(next->initializers[i]);

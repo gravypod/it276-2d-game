@@ -64,6 +64,8 @@ int main(int argc, char **argv)
     SDL_ShowCursor(SDL_DISABLE);
 
     game_state_manager_set(game_state_playing);
+    game_state_manager_set(game_state_none);
+    game_state_manager_set(game_state_playing);
 
     while (state.running) {
         game_update();
