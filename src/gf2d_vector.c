@@ -482,6 +482,14 @@ Vector2D vector2d_rotate(Vector2D in, float angle)
     return out;
 }
 
+Vector2D vector2d_unit_vector_from_angle(double radians)
+{
+    Vector2D vector;
+    vector.x = cos(radians);
+    vector.y = sin(radians);
+    return vector;
+}
+
 float vector_angle(float x,float y)
 {
   float angle = atan2(y, x) + M_PI;

@@ -319,6 +319,13 @@ void vector3d_angle_vectors(Vector3D angles, Vector3D *forward, Vector3D *right,
 Vector2D vector2d_rotate(Vector2D in, float angle);
 
 /**
+ * Create a unit vector from an angle
+ * @param radians
+ * @return vector of a magnitude of 1 from an angle.
+ */
+Vector2D vector2d_unit_vector_from_angle(double radians);
+
+/**
  * @brief rotate an Vector3D about another vector
  * @param dst output result
  * @param dir the vector to rotate about

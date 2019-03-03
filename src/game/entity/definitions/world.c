@@ -15,6 +15,28 @@ Vector2D tile_size = {
 bool tiles[TILES_COUNT];
 Sprite *sprite = NULL;
 
+
+Vector2D entity_world_point_to_tile(Vector2D *point)
+{
+    const Vector2D tile = {
+            .x = (int) (point->x / TILE_SIZE_X),
+            .y = (int) (point->y / TILE_SIZE_Y)
+    };
+    return tile;
+}
+
+int entity_world_tile_to_index(Vector2D *tile)
+{
+    const int x = (int) tile->x;
+    const int y = (int) tile->y;
+    return x + (y * TILES_X);
+}
+
+bool entity_world_tile_full(Vector2D *tile)
+{
+    return tiles[entity_world_tile_to_index(tile)];
+}
+
 bool entity_world_entity_collision_generator(entity_t *entity, Vector2D *position_next, Vector2D *tile) {
     int i;
     for (i = ((int) (tile->y * TILES_X) + tile->x); i < TILES_COUNT; i++) {

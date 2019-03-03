@@ -31,7 +31,7 @@ void entity_bug_touching(entity_t *entity, entity_t *them)
     }
 
     printf("Bug is touching entity (%li -> %li)\n", entity->id, them->id);
-    them->health -= 999;
+    //them->health -= 999;
     entity_manager_release(entity);
 }
 

@@ -15,6 +15,11 @@
 
 extern Vector2D world_first_open_position, world_last_open_position;
 
+
+Vector2D entity_world_point_to_tile(Vector2D *point);
+int entity_world_tile_to_index(Vector2D *tile);
+bool entity_world_tile_full(Vector2D *tile);
+
 void entity_world_init(entity_t *entity);
 
 void entity_world_free(entity_t *entity);
