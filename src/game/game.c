@@ -7,17 +7,11 @@
 #include <game/collision/bbox.h>
 #include <game/entity/definitions/bug.h>
 #include <game/entity/definitions/world.h>
+#include <game/states/manager.h>
 #include "game.h"
 #include "entity/manager.h"
 
 
-#define NUM_SYSTEM_INITIALIZERS 3
-entity_type_t system_initializers[NUM_SYSTEM_INITIALIZERS] = {
-        //entity_type_background,
-        entity_type_world,
-        entity_type_cursor,
-        entity_type_player,
-};
 
 game_sate_t state = {
         .running = true,
@@ -69,10 +63,7 @@ int main(int argc, char **argv)
     game_graphics_init();
     SDL_ShowCursor(SDL_DISABLE);
 
-    // Initialize all system components
-    for (size_t i = 0; i < NUM_SYSTEM_INITIALIZERS; i++) {
-        entity_manager_make(system_initializers[i]);
-    }
+    game_state_manager_set(game_state_playing);
 
     while (state.running) {
         game_update();
