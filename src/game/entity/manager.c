@@ -205,5 +205,6 @@ void entity_manager_draw()
 
 void entity_manager_free()
 {
-    entity_manager_for_each((entity_consumer_t) entity_free, true);
+    entity_manager_for_each((entity_consumer_t) entity_manager_release, true);
+    entity_manager_init();
 }
