@@ -111,23 +111,30 @@ void entity_player_update_keyboard(entity_t *entity)
     } else if (state.keys[SDL_SCANCODE_F]) {
         shooting_debounce = true;
 
-        int steps = 20;
-        double distance = 256;
+        Vector2D pos = entity->position;
+        pos.x += 10;
+        pos.y += 10;
+
+        int steps = 10;
         Vector2D direction = vector2d_unit_vector_from_angle(0);
         entity_t *entity_collision;
         Vector2D tile_collision;
 
+        Vector2D tile_size = {TILE_SIZE_X, TILE_SIZE_Y};
+        float magnitude = vector2d_magnitude(tile_size);
         entity_raytrace_collision_type type = raytrace(
-                entity, entity->position, direction,
-                distance, steps,
+                entity, pos, direction,
+                2 * magnitude, steps,
                 &entity_collision, &tile_collision
         );
+
 
         switch (type) {
             case entity_raytrace_collision_entity: {
                 slog("Entity was hit during a raytrace");
                 break;
             }
+
             case entity_raytrace_collision_world: {
                 Vector2D tile = entity_world_point_to_tile(&entity->position);
                 printf("   Player Tile: %lf, %lf\n", tile.x, tile.y);
@@ -135,6 +142,7 @@ void entity_player_update_keyboard(entity_t *entity)
                 slog("World was hit during a raytrace");
                 break;
             }
+
             case entity_raytrace_collision_none:
             default: {
                 slog("Nothing was hit during a raytrace");

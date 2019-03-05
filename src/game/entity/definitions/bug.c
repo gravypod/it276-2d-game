@@ -30,9 +30,11 @@ void entity_bug_touching(entity_t *entity, entity_t *them)
         return;
     }
 
-    printf("Bug is touching entity (%li -> %li)\n", entity->id, them->id);
+    entity->speed = 0.0f;
+
+    //printf("Bug is touching entity (%li -> %li)\n", entity->id, them->id);
     //them->health -= 999;
-    entity_manager_release(entity);
+    //entity_manager_release(entity);
 }
 
 void entity_bug_free(entity_t *entity)

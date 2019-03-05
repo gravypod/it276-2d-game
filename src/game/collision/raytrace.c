@@ -5,7 +5,7 @@
 
 bool raytrace_collision_world(Vector2D *position, Vector2D *tile)
 {
-    if (!point_collision_with_world(position)) {
+    if (!entity_world_point_collides(position)) {
         return false;
     }
 
@@ -49,21 +49,35 @@ entity_raytrace_collision_type raytrace(
         entity_t **entity, Vector2D *tile
 )
 {
+    Vector2D positions[512];
     Vector2D step;
     vector2d_normalize(&direction);
     vector2d_scale(step, direction, distance / (double) steps);
 
+    entity_raytrace_collision_type collision_type = entity_raytrace_collision_none;
+
     for (int i = 0; i <= steps; i++) {
-        if (raytrace_collision_world(&position, tile)) {
-            return entity_raytrace_collision_world;
-        }
+
+        positions[i] = position;
 
         if (raytrace_collision_entity(shooter, &position, entity)) {
-            return entity_raytrace_collision_entity;
+            collision_type = entity_raytrace_collision_entity;
+            break;
+        }
+
+        if (raytrace_collision_world(&position, tile)) {
+            collision_type = entity_raytrace_collision_world;
+            break;
         }
 
         vector2d_add(position, position, step);
     }
 
-    return entity_raytrace_collision_none;
+    for (int i = 0; i <= steps; i++) {
+        entity_t *marker = entity_manager_make(entity_type_bug);
+        marker->position = positions[i];
+        marker->speed = 0;
+    }
+
+    return collision_type;
 }

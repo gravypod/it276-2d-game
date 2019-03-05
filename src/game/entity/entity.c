@@ -103,12 +103,6 @@ void entity_update(entity_t *entity) {
 
 }
 
-void entity_touching_wall(entity_t *entity, entity_touch_wall_t wall) {
-    if (entity->touching_wall) {
-        entity->touching_wall(entity, wall);
-    }
-}
-
 void entity_touching(entity_t *entity, entity_t *other) {
     if (entity->touching) {
         entity->touching(entity, other);
