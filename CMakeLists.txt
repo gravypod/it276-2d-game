@@ -36,7 +36,7 @@ add_executable(
         src/game/collision/bbox.c src/game/collision/bbox.h
         src/game/entity/definitions/bug.c src/game/entity/definitions/bug.h
         src/game/entity/definitions/youdied.c src/game/entity/definitions/youdied.h
-        src/game/states/manager.c src/game/states/manager.h)
+        src/game/states/manager.c src/game/states/manager.h src/game/collision/point.c src/game/collision/point.h src/game/collision/raytrace.c src/game/collision/raytrace.h)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/include" ${SDL2_INCLUDE_DIR}
                     ${SDL2_IMAGE_INCLUDE_DIR}

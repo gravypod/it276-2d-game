@@ -7,6 +7,7 @@
 #include <game/game.h>
 #include <simple_logger.h>
 #include <game/entity/manager.h>
+#include <game/collision/raytrace.h>
 
 #define NUM_FRAMES 148
 #define SPRITE_HEIGHT 128
@@ -95,8 +96,59 @@ void entity_player_update_position(Vector2D *velocity)
 
 void entity_player_update_keyboard(entity_t *entity)
 {
+    static bool shooting_debounce = false;
+
     if (state.keys[SDL_SCANCODE_SPACE]) {
         entity->statuses |= entity_player_status_speedup;
+    }
+
+
+    // Process shooting
+    if (shooting_debounce) {
+        if (!state.keys[SDL_SCANCODE_F]) {
+            shooting_debounce = false;
+        }
+    } else if (state.keys[SDL_SCANCODE_F]) {
+        shooting_debounce = true;
+
+        Vector2D pos = entity->position;
+        pos.x += 10;
+        pos.y += 10;
+
+        int steps = 10;
+        Vector2D direction = vector2d_unit_vector_from_angle(0);
+        entity_t *entity_collision;
+        Vector2D tile_collision;
+
+        Vector2D tile_size = {TILE_SIZE_X, TILE_SIZE_Y};
+        float magnitude = vector2d_magnitude(tile_size);
+        raytrace_collision_t type = raytrace(
+                entity, pos, direction,
+                2 * magnitude, steps,
+                &entity_collision, &tile_collision
+        );
+
+
+        switch (type) {
+            case entity_raytrace_collision_entity: {
+                slog("Entity was hit during a raytrace");
+                break;
+            }
+
+            case entity_raytrace_collision_world: {
+                Vector2D tile = entity_world_point_to_tile(&entity->position);
+                printf("   Player Tile: %lf, %lf\n", tile.x, tile.y);
+                printf("Collision Tile: %lf, %lf\n", tile_collision.x, tile_collision.y);
+                slog("World was hit during a raytrace");
+                break;
+            }
+
+            case entity_raytrace_collision_none:
+            default: {
+                slog("Nothing was hit during a raytrace");
+                break;
+            }
+        }
     }
 }
 

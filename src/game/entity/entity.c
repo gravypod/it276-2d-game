@@ -16,6 +16,15 @@ void entity_clear(entity_t *e) {
     e->id = id;
 }
 
+Vector2D entity_position_top_left(entity_t *e)
+{
+    const Vector2D top_left_entity = {
+            .x = e->position.x - (e->size.x / 2.0f),
+            .y = e->position.y - (e->size.y / 2.0f),
+    };
+    return top_left_entity;
+}
+
 void entity_post_init(entity_t *e) {
     e->allocated = true;
 }
@@ -43,10 +52,7 @@ void entity_update_collision(entity_t *entity)
         }
 
 
-        const Vector2D top_left_entity = {
-                .x = entity->position.x - (entity->size.x / 2.0f),
-                .y = entity->position.y - (entity->size.y / 2.0f),
-        };
+        const Vector2D top_left_entity = entity_position_top_left(entity);
         const Vector2D top_left_other = {
                 .x = other->position.x - (other->size.x / 2.0f),
                 .y = other->position.y - (other->size.y / 2.0f),
@@ -95,12 +101,6 @@ void entity_update(entity_t *entity) {
         entity_update_collision(entity);
     }
 
-}
-
-void entity_touching_wall(entity_t *entity, entity_touch_wall_t wall) {
-    if (entity->touching_wall) {
-        entity->touching_wall(entity, wall);
-    }
 }
 
 void entity_touching(entity_t *entity, entity_t *other) {

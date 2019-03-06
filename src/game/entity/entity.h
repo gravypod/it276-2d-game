@@ -138,6 +138,8 @@ static inline void entity_touch_wall_to_string(entity_touch_wall_t wall, char si
     sides[x] = 0;
 }
 
+Vector2D entity_position_top_left(entity_t *e);
+
 /**
  * Initialize an empty entity. This is used to reset an entity to an unused state.
  *
