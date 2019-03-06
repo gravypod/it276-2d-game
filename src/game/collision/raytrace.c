@@ -43,41 +43,27 @@ bool raytrace_collision_entity(entity_t *shooter, Vector2D *position, entity_t *
     return false;
 }
 
-entity_raytrace_collision_type raytrace(
+raytrace_collision_t raytrace(
         entity_t *shooter, Vector2D position, Vector2D direction,
         double distance, int steps,
         entity_t **entity, Vector2D *tile
 )
 {
-    Vector2D positions[512];
     Vector2D step;
     vector2d_normalize(&direction);
     vector2d_scale(step, direction, distance / (double) steps);
 
-    entity_raytrace_collision_type collision_type = entity_raytrace_collision_none;
-
     for (int i = 0; i <= steps; i++) {
-
-        positions[i] = position;
-
         if (raytrace_collision_entity(shooter, &position, entity)) {
-            collision_type = entity_raytrace_collision_entity;
-            break;
+            return entity_raytrace_collision_entity;
         }
 
         if (raytrace_collision_world(&position, tile)) {
-            collision_type = entity_raytrace_collision_world;
-            break;
+            return entity_raytrace_collision_world;
         }
 
         vector2d_add(position, position, step);
     }
 
-    for (int i = 0; i <= steps; i++) {
-        entity_t *marker = entity_manager_make(entity_type_bug);
-        marker->position = positions[i];
-        marker->speed = 0;
-    }
-
-    return collision_type;
+    return entity_raytrace_collision_none;
 }

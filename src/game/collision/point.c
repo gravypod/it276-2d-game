@@ -25,9 +25,3 @@ bool point_collision_with_entity(entity_t *entity, Vector2D *point)
 
     return within_x_range && within_y_range;
 }
-
-bool point_collision_with_world(Vector2D *point)
-{
-    Vector2D tile = entity_world_point_to_tile(point);
-    return entity_world_tile_full(&tile);
-}

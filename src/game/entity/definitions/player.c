@@ -122,7 +122,7 @@ void entity_player_update_keyboard(entity_t *entity)
 
         Vector2D tile_size = {TILE_SIZE_X, TILE_SIZE_Y};
         float magnitude = vector2d_magnitude(tile_size);
-        entity_raytrace_collision_type type = raytrace(
+        raytrace_collision_t type = raytrace(
                 entity, pos, direction,
                 2 * magnitude, steps,
                 &entity_collision, &tile_collision

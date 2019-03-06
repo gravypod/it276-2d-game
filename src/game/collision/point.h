@@ -3,7 +3,6 @@
 
 #include <game/entity/entity.h>
 
-bool point_collision_with_world(Vector2D *point);
 bool point_collision_with_entity(entity_t *entity, Vector2D *point);
 
 #endif
