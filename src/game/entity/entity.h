@@ -67,6 +67,7 @@ typedef struct entity_struct
      * The location in world space of the entity
      */
     Vector2D position;
+    double roation;
 
     // Size in width and height of this entity
     Vector2D size;
@@ -154,7 +155,7 @@ void entity_touching(entity_t *entity, entity_t *other);
 void entity_draw(entity_t *entity);
 
 void draw_centered_around_player(Sprite *sprite, Vector2D entity_size, Vector2D entity_position, Vector4D *entity_color,
-                                 Uint32 frame);
+                                 Uint32 frame, double rotation);
 
 #endif
 

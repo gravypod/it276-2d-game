@@ -114,7 +114,7 @@ void entity_touching(entity_t *entity, entity_t *other) {
 }
 
 void draw_centered_around_player(Sprite *sprite, Vector2D entity_size, Vector2D entity_position, Vector4D *entity_color,
-                                 Uint32 frame) {
+                                 Uint32 frame, double rotation) {
     static Vector2D position;
 
     vector2d_sub(position, entity_position, player->position);
@@ -124,12 +124,18 @@ void draw_centered_around_player(Sprite *sprite, Vector2D entity_size, Vector2D 
     position.x -= entity_size.x / 2.0f;
     position.y -= entity_size.y / 2.0f;
 
+    Vector3D rotation_vector = {
+            .x = entity_size.x / 2.0f,
+            .y = entity_size.y / 2.0f,
+            .z = rotation
+    };
+
     gf2d_sprite_draw(
             sprite,
             position,
             NULL,
             NULL,
-            NULL,
+            &rotation_vector,
             NULL,
             entity_color,
             frame
@@ -145,6 +151,6 @@ void entity_draw(entity_t *entity) {
     if (entity->sprite) {
         draw_centered_around_player(entity->sprite, entity->size, entity->position,
                                     entity->has_color ? &entity->color : NULL,
-                                    entity->sprite_frame);
+                                    entity->sprite_frame, entity->roation);
     }
 }
