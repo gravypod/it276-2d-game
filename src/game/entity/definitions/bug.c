@@ -20,7 +20,7 @@ void entity_bug_init(entity_t *entity)
     entity->sprite = gf2d_sprite_load_all("images/space_bug_top.png", SPRITE_WIDTH, SPRITE_HEIGHT, 16);
     entity->size.x = SPRITE_WIDTH - 30; entity->size.y = SPRITE_HEIGHT;
 
-    entity->speed = ENTITY_BUG_SPEED_NORMAL;
+    entity->speed = 0; //ENTITY_BUG_SPEED_NORMAL;
     bugs_alive++;
 }
 
