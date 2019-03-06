@@ -20,6 +20,10 @@
 entity_t *player = NULL;
 SDL_GameController *controller = NULL;
 
+double deg2rad (double degrees) {
+    return degrees * 4.0 * atan (1.0) / 180.0;
+}
+
 void entity_player_init(entity_t *entity)
 {
     entity->type = entity_type_player;
@@ -31,6 +35,8 @@ void entity_player_init(entity_t *entity)
     entity->position.x = 10;
     entity->position.y = 10;
 
+
+    entity->roation = deg2rad(90);
     entity->size.x = SPRITE_WIDTH - 20; entity->size.y = SPRITE_HEIGHT - 10;
     entity->statuses = entity_player_status_none;
 
@@ -84,6 +90,33 @@ void entity_player_free(entity_t *entity)
     entity_manager_make(entity_type_youdied);
 }
 
+double entity_player_controller_angle()
+{
+    static double last_angle = 0;
+
+    const int x_dead_zone = 3000;
+    const int y_dead_zone = 3000;
+    Vector2D aim_direction = {
+            .x = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX),
+            .y = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY)
+    };
+
+    if (aim_direction.x < x_dead_zone && aim_direction.x > -x_dead_zone)
+        aim_direction.x = 0;
+
+    if (aim_direction.y < y_dead_zone && aim_direction.y > -y_dead_zone)
+        aim_direction.y = 0;
+
+    vector2d_normalize(&aim_direction);
+
+
+    if (aim_direction.x == 0 && aim_direction.y == 0) {
+        return last_angle;
+    }
+
+    return last_angle = (vector2d_angle(aim_direction) + 90);
+}
+
 Vector2D entity_player_controller_walk_direction()
 {
     const int x_dead_zone = 3000;
@@ -103,8 +136,6 @@ Vector2D entity_player_controller_walk_direction()
     return walk_direction;
 }
 
-void entity_player_update_position(Vector2D *velocity)
-{
 /*
 
     int16_t StickRX = SDL_GameControllerGetAxis(p.ControllerHandle, SDL_CONTROLLER_AXIS_RIGHTX);
@@ -112,7 +143,6 @@ void entity_player_update_position(Vector2D *velocity)
     int16_t LeftTrigger = SDL_GameControllerGetAxis(p.ControllerHandle, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
     int16_t RightTrigger = SDL_GameControllerGetAxis(p.ControllerHandle, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
 */
-}
 
 void entity_player_update_keyboard(entity_t *entity)
 {
@@ -189,6 +219,7 @@ void entity_player_update(entity_t *entity)
     entity_player_update_keyboard(entity);
     entity_player_update_powerups(entity);
     entity->velocity = entity_player_controller_walk_direction();
+    entity->roation = entity_player_controller_angle();
 
     if (entity->health <= 0) {
         entity_manager_release(entity);

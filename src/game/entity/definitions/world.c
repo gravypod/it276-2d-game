@@ -232,7 +232,7 @@ void entity_world_draw(entity_t *entity) {
             };
 
 
-            draw_centered_around_player(sprite, tile_size, position, NULL, 0);
+            draw_centered_around_player(sprite, tile_size, position, NULL, 0, 0);
         }
     }
 }
