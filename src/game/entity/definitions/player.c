@@ -18,7 +18,7 @@
 #define ENTITY_PLAYER_SPEED_FAST   10
 
 entity_t *player = NULL;
-
+SDL_GameController *controller = NULL;
 
 void entity_player_init(entity_t *entity)
 {
@@ -39,6 +39,17 @@ void entity_player_init(entity_t *entity)
     entity->position.y *= TILE_SIZE_Y;
 
     entity->health = 100;
+
+    printf("%i joysticks were found.\n\n", SDL_NumJoysticks() );
+    printf("The names of the joysticks are:\n");
+
+    if (!controller) {
+        controller = SDL_GameControllerOpen(0);
+        const char *name = SDL_GameControllerName(controller);
+        if (name) {
+            printf("Player loaded control to controller: %s\n", name);
+        }
+    }
 
     player = entity;
 }
@@ -73,25 +84,34 @@ void entity_player_free(entity_t *entity)
     entity_manager_make(entity_type_youdied);
 }
 
+Vector2D entity_player_controller_walk_direction()
+{
+    const int x_dead_zone = 3000;
+    const int y_dead_zone = 3000;
+    Vector2D walk_direction = {
+            .x = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX),
+            .y = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY)
+    };
+
+    if (walk_direction.x < x_dead_zone && walk_direction.x > -x_dead_zone)
+        walk_direction.x = 0;
+
+    if (walk_direction.y < y_dead_zone && walk_direction.y > -y_dead_zone)
+        walk_direction.y = 0;
+
+    vector2d_normalize(&walk_direction);
+    return walk_direction;
+}
+
 void entity_player_update_position(Vector2D *velocity)
 {
-    velocity->x = velocity->y = 0;
+/*
 
-    if (state.keys[SDL_SCANCODE_W]) {
-        velocity->y -= 1;
-    }
-
-    if (state.keys[SDL_SCANCODE_S]) {
-        velocity->y += 1;
-    }
-
-    if (state.keys[SDL_SCANCODE_A]) {
-        velocity->x -= 1;
-    }
-
-    if (state.keys[SDL_SCANCODE_D]) {
-        velocity->x += 1;
-    }
+    int16_t StickRX = SDL_GameControllerGetAxis(p.ControllerHandle, SDL_CONTROLLER_AXIS_RIGHTX);
+    int16_t StickRY = SDL_GameControllerGetAxis(p.ControllerHandle, SDL_CONTROLLER_AXIS_RIGHTY);
+    int16_t LeftTrigger = SDL_GameControllerGetAxis(p.ControllerHandle, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+    int16_t RightTrigger = SDL_GameControllerGetAxis(p.ControllerHandle, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+*/
 }
 
 void entity_player_update_keyboard(entity_t *entity)
@@ -168,8 +188,7 @@ void entity_player_update(entity_t *entity)
 {
     entity_player_update_keyboard(entity);
     entity_player_update_powerups(entity);
-    entity_player_update_position(&entity->velocity);
-
+    entity->velocity = entity_player_controller_walk_direction();
 
     if (entity->health <= 0) {
         entity_manager_release(entity);

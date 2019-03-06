@@ -63,6 +63,12 @@ int main(int argc, char **argv)
     game_graphics_init();
     SDL_ShowCursor(SDL_DISABLE);
 
+
+    if (SDL_NumJoysticks() <= 0) {
+        slog("Failed to find any joystick devices\n");
+        exit(1);
+    }
+
     game_state_manager_set(game_state_playing);
     game_state_manager_set(game_state_none);
     game_state_manager_set(game_state_playing);
