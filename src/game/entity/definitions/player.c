@@ -17,6 +17,8 @@
 #define ENTITY_PLAYER_SPEED_NORMAL  5
 #define ENTITY_PLAYER_SPEED_FAST   10
 
+#define DEG2RAD (3.14159f / 180.0f)
+
 entity_t *player = NULL;
 SDL_GameController *controller = NULL;
 
@@ -32,8 +34,8 @@ void entity_player_init(entity_t *entity)
     entity->position.y = 10;
 
 
-    entity->roation = deg2rad(90);
-    entity->size.x = SPRITE_WIDTH - 20; entity->size.y = SPRITE_HEIGHT - 10;
+    entity->roation = 0;
+    entity->size.x = SPRITE_WIDTH; entity->size.y = SPRITE_HEIGHT;
     entity->statuses = entity_player_status_none;
 
     entity->position = world_first_open_position;
@@ -86,6 +88,26 @@ void entity_player_free(entity_t *entity)
     entity_manager_make(entity_type_youdied);
 }
 
+bool entity_player_controller_pressed()
+{
+    const int right_trigger_dead_zone = 3000;
+
+    static bool previously_pressed = false;
+
+    Sint16 right_trigger_depression = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+    bool currently_pressed = right_trigger_depression > right_trigger_dead_zone;
+
+    if (currently_pressed && !previously_pressed) {
+        return (previously_pressed = currently_pressed);
+    }
+
+    if (!currently_pressed && previously_pressed) {
+        return (previously_pressed = false);
+    }
+
+    return false;
+}
+
 double entity_player_controller_angle()
 {
     static double last_angle = 0;
@@ -134,35 +156,23 @@ Vector2D entity_player_controller_walk_direction()
 
 /*
 
-    int16_t StickRX = SDL_GameControllerGetAxis(p.ControllerHandle, SDL_CONTROLLER_AXIS_RIGHTX);
-    int16_t StickRY = SDL_GameControllerGetAxis(p.ControllerHandle, SDL_CONTROLLER_AXIS_RIGHTY);
     int16_t LeftTrigger = SDL_GameControllerGetAxis(p.ControllerHandle, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
-    int16_t RightTrigger = SDL_GameControllerGetAxis(p.ControllerHandle, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
 */
 
-void entity_player_update_keyboard(entity_t *entity)
+void entity_player_update_interactions(entity_t *entity)
 {
-    static bool shooting_debounce = false;
 
     if (state.keys[SDL_SCANCODE_SPACE]) {
         entity->statuses |= entity_player_status_speedup;
     }
 
 
-    // Process shooting
-    if (shooting_debounce) {
-        if (!state.keys[SDL_SCANCODE_F]) {
-            shooting_debounce = false;
-        }
-    } else if (state.keys[SDL_SCANCODE_F]) {
-        shooting_debounce = true;
-
+    if (entity_player_controller_pressed()) {
         Vector2D pos = entity->position;
-        pos.x += 10;
-        pos.y += 10;
-
         int steps = 10;
-        Vector2D direction = vector2d_unit_vector_from_angle(0);
+        Vector2D direction = vector2d_unit_vector_from_angle(
+                (entity_player_controller_angle() - 90) * DEG2RAD
+                );
         entity_t *entity_collision;
         Vector2D tile_collision;
 
@@ -173,7 +183,6 @@ void entity_player_update_keyboard(entity_t *entity)
                 2 * magnitude, steps,
                 &entity_collision, &tile_collision
         );
-
 
         switch (type) {
             case entity_raytrace_collision_entity: {
@@ -212,7 +221,7 @@ void entity_player_update_powerups(entity_t *entity)
 
 void entity_player_update(entity_t *entity)
 {
-    entity_player_update_keyboard(entity);
+    entity_player_update_interactions(entity);
     entity_player_update_powerups(entity);
     entity->velocity = entity_player_controller_walk_direction();
     entity->roation = entity_player_controller_angle();
