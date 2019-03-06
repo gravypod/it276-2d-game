@@ -42,8 +42,31 @@ bool entity_world_point_collides(Vector2D *point)
 
 Vector2D entity_world_point_to_tile(Vector2D *point)
 {
-    const int x = (int) point->x, y = (int) point->y;
+    for (int i = 0; i < TILES_COUNT; i++) {
+        const int x = i % TILES_X, y = i / TILES_X;
 
+        const Vector2D tile = {
+                (tile_size.x * x) - (TILE_SIZE_X / 2.0f),
+                (tile_size.y * y) - (TILE_SIZE_Y / 2.0f)
+        };
+
+        const bool within_x = (tile.x <= point->x) && ((tile.x  + TILE_SIZE_X) > point->x);
+        const bool within_y = (tile.y <= point->y) && ((tile.y  + TILE_SIZE_Y) > point->y);
+
+        if (within_x && within_y) {
+            Vector2D t = {
+                    .x = x,
+                    .y = y
+            };
+            return t;
+        }
+    }
+
+    Vector2D n = {
+            .x = -1,
+            .y = -1
+    };
+    return n;
 
 }
 
