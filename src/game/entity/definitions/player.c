@@ -20,10 +20,6 @@
 entity_t *player = NULL;
 SDL_GameController *controller = NULL;
 
-double deg2rad (double degrees) {
-    return degrees * 4.0 * atan (1.0) / 180.0;
-}
-
 void entity_player_init(entity_t *entity)
 {
     entity->type = entity_type_player;
