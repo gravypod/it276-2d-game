@@ -19,10 +19,45 @@
 
 #define DEG2RAD (3.14159f / 180.0f)
 
-#define PLAYER_SAVE_FILE "player.bin"
-
 entity_t *player = NULL;
 SDL_GameController *controller = NULL;
+
+
+#define NUM_ATTACKS 1
+
+typedef struct {
+    int steps;
+    float distance;
+    long damage;
+} attack_t;
+
+attack_t attacks[NUM_ATTACKS] = {
+        {
+            .steps = 30,
+            .distance = ((SPRITE_HEIGHT * 1.2f) / 4.0f),
+            .damage = 40
+        }
+};
+
+
+entity_t *entity_player_attack(float distance, const int steps) {
+    entity_t *hit;
+    const raytrace_collision_t type = raytrace(
+            player, player->position,
+            vector2d_unit_vector_from_angle((player->roation - 90) * DEG2RAD),
+            distance, steps,
+            &hit,
+            NULL
+    );
+
+    if (type != entity_raytrace_collision_entity) {
+        return NULL;
+    }
+
+    printf("Attack and hit %zu\n", hit->id);
+
+    return hit;
+}
 
 void entity_player_init(entity_t *entity)
 {
@@ -62,27 +97,6 @@ void entity_player_init(entity_t *entity)
 
 void entity_player_touching_wall(entity_t *entity, entity_touch_wall_t wall)
 {
-    if (entity_bug_alive_count() > 0) {
-        printf("Couldn't change stages. Player still has bugs to crush\n");
-        return;
-    }
-
-    printf("Player is touching wall!\n");
-    Vector2D player_next_stage_pos = entity->position;
-
-    if (wall & entity_touch_wall_top) {
-        player_next_stage_pos.y = (state.view_height - entity->size.y) - 1;
-    } else if (wall & entity_touch_wall_bottom) {
-        player_next_stage_pos.y = 1;
-    }
-
-    if (wall & entity_touch_wall_left) {
-        player_next_stage_pos.x = (state.view_width - entity->size.x) - 1;
-    } else if (wall & entity_touch_wall_right) {
-        player_next_stage_pos.x = 1;
-    }
-
-    entity->position = player_next_stage_pos;
 }
 
 void entity_player_free(entity_t *entity)
@@ -174,41 +188,12 @@ void entity_player_update_interactions(entity_t *entity)
 
 
     if (entity_player_controller_pressed()) {
-        Vector2D pos = entity->position;
-        int steps = 10;
-        Vector2D direction = vector2d_unit_vector_from_angle(
-                (entity_player_controller_angle() - 90) * DEG2RAD
-                );
-        entity_t *entity_collision;
-        Vector2D tile_collision;
+        const int current_attack = 0;
+        const attack_t attack = attacks[current_attack];
+        entity_t *hit = entity_player_attack(attack.distance, attack.steps);
 
-        Vector2D tile_size = {TILE_SIZE_X, TILE_SIZE_Y};
-        float magnitude = vector2d_magnitude(tile_size);
-        raytrace_collision_t type = raytrace(
-                entity, pos, direction,
-                2 * magnitude, steps,
-                &entity_collision, &tile_collision
-        );
-
-        switch (type) {
-            case entity_raytrace_collision_entity: {
-                slog("Entity was hit during a raytrace");
-                break;
-            }
-
-            case entity_raytrace_collision_world: {
-                Vector2D tile = entity_world_point_to_tile(&entity->position);
-                printf("   Player Tile: %lf, %lf\n", tile.x, tile.y);
-                printf("Collision Tile: %lf, %lf\n", tile_collision.x, tile_collision.y);
-                slog("World was hit during a raytrace");
-                break;
-            }
-
-            case entity_raytrace_collision_none:
-            default: {
-                slog("Nothing was hit during a raytrace");
-                break;
-            }
+        if (hit) {
+            hit->health -= attack.damage;
         }
     }
 }
@@ -227,10 +212,10 @@ void entity_player_update_powerups(entity_t *entity)
 
 void entity_player_update(entity_t *entity)
 {
-    entity_player_update_interactions(entity);
     entity_player_update_powerups(entity);
     entity->velocity = entity_player_controller_walk_direction();
     entity->roation = entity_player_controller_angle();
+    entity_player_update_interactions(entity);
 
     if (entity->health <= 0) {
         entity_manager_release(entity);
