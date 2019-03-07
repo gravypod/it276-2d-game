@@ -15,6 +15,9 @@ typedef struct Sprite_S
     Uint32 frame_w,frame_h;
 }Sprite;
 
+
+void gf2d_sprite_cleanup();
+
 /**
  * @brief initializes the sprite manager 
  * @param max the maximum number of sprites the system will handle at once

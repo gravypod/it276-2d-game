@@ -25,7 +25,6 @@ void init_logger(const char *log_file_path)
     {
         __log_file = fopen(log_file_path,"a");
     }
-    atexit(close_logger);
 }
 
 void _slog(char *f,int l,char *msg,...)

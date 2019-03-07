@@ -21,6 +21,8 @@
  *    SOFTWARE.
  */
 
+void close_logger();
+
 /**
   @brief initializes the simple logger.  Will automatically cleanup at program exit.
 

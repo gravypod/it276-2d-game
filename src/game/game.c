@@ -12,7 +12,6 @@
 #include "entity/manager.h"
 
 
-
 game_sate_t state = {
         .running = true,
         .keys = NULL,
@@ -70,11 +69,15 @@ int main(int argc, char **argv)
     }
 
     game_state_manager_set(game_state_playing);
-    game_state_manager_set(game_state_none);
-    game_state_manager_set(game_state_playing);
-
-    while (state.running) {
-        game_update();
-        game_draw();
+    {
+        while (state.running) {
+            game_update();
+            game_draw();
+        }
     }
+    game_state_manager_set(game_state_none);
+
+    gf2d_sprite_cleanup();
+    gf2d_graphics_cleanup();
+    close_logger();
 }

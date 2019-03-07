@@ -53,9 +53,6 @@ const entity_initializer_t constructors[] = {
 
 bool entity_manager_init()
 {
-    // Before exit, call entity_manager_free
-    atexit(entity_manager_free);
-
     entity_pool.freed_entities = 0;
 
     entity_pool.num_entities = MAX_NUM_ENTITIES;
