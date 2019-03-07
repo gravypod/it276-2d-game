@@ -55,29 +55,39 @@ void game_draw()
     gf2d_grahics_next_frame();// render current draw frame and skip to the next frame
 }
 
-int main(int argc, char **argv)
+void game_setup()
 {
     init_logger("gf2d.log");
     entity_manager_init();
     game_graphics_init();
     SDL_ShowCursor(SDL_DISABLE);
+}
 
-
-    if (SDL_NumJoysticks() <= 0) {
-        slog("Failed to find any joystick devices\n");
-        exit(1);
-    }
-
-    game_state_manager_set(game_state_playing);
-    {
-        while (state.running) {
-            game_update();
-            game_draw();
-        }
-    }
-    game_state_manager_set(game_state_none);
-
+void game_teardown()
+{
     gf2d_sprite_cleanup();
     gf2d_graphics_cleanup();
     close_logger();
+}
+
+int main(int argc, char **argv)
+{
+    game_setup();
+    {
+        if (SDL_NumJoysticks() <= 0) {
+            slog("Failed to find any joystick devices\n");
+            exit(1);
+        }
+
+        game_state_manager_set(game_state_playing);
+        {
+            while (state.running) {
+                game_update();
+                game_draw();
+            }
+        }
+        game_state_manager_set(game_state_none);
+    }
+    game_teardown();
+
 }
