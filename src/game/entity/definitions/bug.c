@@ -7,7 +7,12 @@
 #define SPRITE_HEIGHT 128
 #define SPRITE_WIDTH 128
 
-size_t bugs_alive;
+uint8_t bugs_alive = 0;
+
+void entity_bug_save_file_name(int world_id, uint8_t alive_id)
+{
+
+}
 
 void entity_bug_init(entity_t *entity)
 {
@@ -21,7 +26,6 @@ void entity_bug_init(entity_t *entity)
     entity->size.x = SPRITE_WIDTH - 30; entity->size.y = SPRITE_HEIGHT;
 
     entity->speed = ENTITY_BUG_SPEED_NORMAL;
-    bugs_alive++;
 }
 
 void entity_bug_touching(entity_t *entity, entity_t *them)

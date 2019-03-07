@@ -4,6 +4,7 @@
 #include <game/collision/bbox.h>
 #include <game/entity/manager.h>
 #include <game/states/save/world.h>
+#include <zconf.h>
 
 #define WORLD_MAX_BUGS 1
 
@@ -206,6 +207,8 @@ void entity_world_init(entity_t *entity) {
 
     entity->size.x = WORLD_X;
     entity->size.y = WORLD_Y;
+    entity->allocated = true;
+    entity->health = LONG_MAX;
 
     // world tile sprite
     sprite = gf2d_sprite_load_all("images/backgrounds/bg_flat.png", TILE_SIZE_X, TILE_SIZE_Y, 1);

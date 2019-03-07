@@ -8,7 +8,6 @@
 #include <simple_logger.h>
 #include <game/entity/manager.h>
 #include <game/collision/raytrace.h>
-#include <game/states/save/player.h>
 
 #define NUM_FRAMES 148
 #define SPRITE_HEIGHT 128
@@ -58,19 +57,6 @@ void entity_player_init(entity_t *entity)
         }
     }
 
-
-    // Load save file
-    save_player_t save;
-
-    if (save_player_load(PLAYER_SAVE_FILE, &save)) {
-        entity->health = save.health;
-        entity->position = save.position;
-        entity->roation = save.rotation;
-        entity->statuses = save.statuses;
-    }
-
-
-
     player = entity;
 }
 
@@ -101,15 +87,6 @@ void entity_player_touching_wall(entity_t *entity, entity_touch_wall_t wall)
 
 void entity_player_free(entity_t *entity)
 {
-    // Load save file
-    save_player_t save = {
-            .health = entity->health,
-            .statuses = entity->statuses,
-            .rotation = entity->roation,
-            .position = entity->position,
-    };
-
-    save_player_dump(PLAYER_SAVE_FILE, &save);
 }
 
 bool entity_player_controller_pressed()

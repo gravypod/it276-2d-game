@@ -39,9 +39,8 @@ add_executable(
         src/game/states/manager.c src/game/states/manager.h src/game/collision/point.c
         src/game/collision/point.h src/game/collision/raytrace.c src/game/collision/raytrace.h
 
-        src/game/states/save/player.c src/game/states/save/player.h
         src/game/states/save/world.c src/game/states/save/world.h
-        src/game/states/save/save.h)
+        src/game/states/save/save.h src/game/states/save/em.c src/game/states/save/em.h)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/include" ${SDL2_INCLUDE_DIR}
                     ${SDL2_IMAGE_INCLUDE_DIR}
