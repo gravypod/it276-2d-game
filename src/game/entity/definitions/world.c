@@ -205,8 +205,8 @@ void entity_world_init(entity_t *entity) {
     entity->position.x = 0;
     entity->position.y = 0;
 
-    entity->size.x = WORLD_X;
-    entity->size.y = WORLD_Y;
+    entity->size.x = 0;
+    entity->size.y = 0;
     entity->allocated = true;
     entity->health = LONG_MAX;
 

@@ -7,12 +7,6 @@
 #define SPRITE_HEIGHT 128
 #define SPRITE_WIDTH 128
 
-uint8_t bugs_alive = 0;
-
-void entity_bug_save_file_name(int world_id, uint8_t alive_id)
-{
-
-}
 
 void entity_bug_init(entity_t *entity)
 {
@@ -34,23 +28,21 @@ void entity_bug_touching(entity_t *entity, entity_t *them)
         return;
     }
 
-    printf("Bug is touching entity (%li -> %li)\n", entity->id, them->id);
-    them->health -= 999;
-    entity_manager_release(entity);
+    //printf("Bug is touching entity (%li -> %li)\n", entity->id, them->id);
+    //them->health -= 999;
+    //entity_manager_release(entity);
 }
 
 void entity_bug_free(entity_t *entity)
 {
-    bugs_alive--;
 }
 
 void entity_bug_update(entity_t *entity)
 {
-    vector2d_sub(entity->velocity, player->position, entity->position);
-    vector2d_normalize(&entity->velocity);
-}
-
-size_t entity_bug_alive_count()
-{
-    return bugs_alive;
+    if (entity->health < 0) {
+        entity->speed = 0.0f;
+    } else {
+        vector2d_sub(entity->velocity, player->position, entity->position);
+        vector2d_normalize(&entity->velocity);
+    }
 }
