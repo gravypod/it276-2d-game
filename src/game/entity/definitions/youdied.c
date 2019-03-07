@@ -1,6 +1,7 @@
 #include <SDL_ttf.h>
 #include <gf2d_graphics.h>
 #include "youdied.h"
+#include "player.h"
 
 TTF_Font *font_cached;
 
@@ -42,7 +43,9 @@ void entity_youdied_init(entity_t *entity) {
 }
 
 void entity_youdied_draw(entity_t *entity) {
-    entity_youdied_render_message(font_cached, "You Died!", 3);
+    if (player != NULL && player->health <= 0) {
+        entity_youdied_render_message(font_cached, "You Died!", 3);
+    }
 }
 
 void entity_youdied_free(entity_t *entity) {

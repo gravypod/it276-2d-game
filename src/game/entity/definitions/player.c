@@ -8,6 +8,7 @@
 #include <simple_logger.h>
 #include <game/entity/manager.h>
 #include <game/collision/raytrace.h>
+#include <game/states/save/player.h>
 
 #define NUM_FRAMES 148
 #define SPRITE_HEIGHT 128
@@ -18,6 +19,8 @@
 #define ENTITY_PLAYER_SPEED_FAST   10
 
 #define DEG2RAD (3.14159f / 180.0f)
+
+#define PLAYER_SAVE_FILE "player.bin"
 
 entity_t *player = NULL;
 SDL_GameController *controller = NULL;
@@ -55,6 +58,19 @@ void entity_player_init(entity_t *entity)
         }
     }
 
+
+    // Load save file
+    save_player_t save;
+
+    if (save_player_load(PLAYER_SAVE_FILE, &save)) {
+        entity->health = save.health;
+        entity->position = save.position;
+        entity->roation = save.rotation;
+        entity->statuses = save.statuses;
+    }
+
+
+
     player = entity;
 }
 
@@ -85,7 +101,15 @@ void entity_player_touching_wall(entity_t *entity, entity_touch_wall_t wall)
 
 void entity_player_free(entity_t *entity)
 {
-    entity_manager_make(entity_type_youdied);
+    // Load save file
+    save_player_t save = {
+            .health = entity->health,
+            .statuses = entity->statuses,
+            .rotation = entity->roation,
+            .position = entity->position,
+    };
+
+    save_player_dump(PLAYER_SAVE_FILE, &save);
 }
 
 bool entity_player_controller_pressed()
@@ -110,7 +134,13 @@ bool entity_player_controller_pressed()
 
 double entity_player_controller_angle()
 {
+    static bool initialized = false;
     static double last_angle = 0;
+
+    if (!initialized) {
+        last_angle = player->roation;
+        initialized = true;
+    }
 
     const int x_dead_zone = 3000;
     const int y_dead_zone = 3000;
@@ -153,11 +183,6 @@ Vector2D entity_player_controller_walk_direction()
     vector2d_normalize(&walk_direction);
     return walk_direction;
 }
-
-/*
-
-    int16_t LeftTrigger = SDL_GameControllerGetAxis(p.ControllerHandle, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
-*/
 
 void entity_player_update_interactions(entity_t *entity)
 {
