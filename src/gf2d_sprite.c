@@ -27,6 +27,12 @@ void gf2d_sprite_close()
     slog("sprite system closed");
 }
 
+void gf2d_sprite_cleanup()
+{
+    gf2d_sprite_close();
+    IMG_Quit();
+}
+
 void gf2d_sprite_init(Uint32 max)
 {
     if (!max)
@@ -42,8 +48,6 @@ void gf2d_sprite_init(Uint32 max)
         slog("failed to init image: %s",SDL_GetError());
     }
     slog("sprite system initialized");
-    atexit(IMG_Quit);
-    atexit(gf2d_sprite_close);
 }
 
 void gf2d_sprite_delete(Sprite *sprite)

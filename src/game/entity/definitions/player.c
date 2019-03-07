@@ -162,6 +162,10 @@ Vector2D entity_player_controller_walk_direction()
 void entity_player_update_interactions(entity_t *entity)
 {
 
+    if (state.keys[SDL_SCANCODE_ESCAPE]) {
+        state.running = false;
+    }
+
     if (state.keys[SDL_SCANCODE_SPACE]) {
         entity->statuses |= entity_player_status_speedup;
     }

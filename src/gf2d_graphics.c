@@ -35,6 +35,13 @@ static Graphics gf2d_graphics;
 /*forward declarations*/
 void gf2d_graphics_close();
 
+
+void gf2d_graphics_cleanup()
+{
+    gf2d_graphics_close();
+    SDL_Quit();
+}
+
 void gf2d_graphics_initialize(
     char *windowName,
     int viewWidth,
@@ -51,7 +58,6 @@ void gf2d_graphics_initialize(
         slog("Unable to initilaize SDL system: %s",SDL_GetError());
         return;
     }
-    atexit(SDL_Quit);
     if (fullscreen)
     {
         if (renderWidth == 0)
@@ -128,7 +134,6 @@ void gf2d_graphics_initialize(
     SDL_SetRenderDrawBlendMode(gf2d_graphics_get_renderer(),SDL_BLENDMODE_BLEND);
 
     srand(SDL_GetTicks());
-    atexit(gf2d_graphics_close);
     slog("graphics initialized");
 }
 
