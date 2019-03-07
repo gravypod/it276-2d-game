@@ -19,7 +19,6 @@ extern const entity_initializer_t constructors[];
 
 /**
  * Initialize the entity pool
- * @param num_entites
  * @return
  */
 bool entity_manager_init();

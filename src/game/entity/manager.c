@@ -73,39 +73,27 @@ entity_t *entity_manager_take(entity_initializer_t initializer)
 {
     entity_t *entity = NULL;
 
-    if (entity_pool.freed_entities) {
-        // We have non-compacted entities. We need to linearly search rather
-        // than allocating a new entity
-        for (size_t i = 0; i < entity_pool.num_entities; i++) {
-            if (entity_pool.entities[i].allocated) {
-                continue;
-            }
-
-            entity = &entity_pool.entities[i];
-            break;
+    // We have non-compacted entities. We need to linearly search rather
+    // than allocating a new entity
+    for (size_t i = 0; i < entity_pool.num_entities; i++) {
+        if (entity_pool.entities[i].allocated) {
+            continue;
         }
 
-        if (!entity) {
-            slog("No entities were free despite freed_entities being marked as %zu", entity_pool.freed_entities);
-            return NULL;
-        }
+        entity = &entity_pool.entities[i];
+        break;
+    }
 
-        entity_pool.freed_entities -= 1;
-    } else {
-        // All of our entities are compactly allocated. We can take from the end
-        // of our preallocated set and avoid a linear search
-        if (entity_pool.num_entities < entity_pool.next_allocation_index) {
-            // TODO: Slab allocation?
-            slog("Ran out of entities to allocate");
-            return NULL;
-        }
-        entity = &entity_pool.entities[entity_pool.next_allocation_index++];
+    if (!entity) {
+        slog("No entities were free despite freed_entities being marked as %zu", entity_pool.freed_entities);
+        return NULL;
     }
 
     // Call initializer
     entity_clear(entity);
     initializer(entity);
     entity_post_init(entity);
+    entity->allocated = true;
 
     return entity;
 }
@@ -114,8 +102,10 @@ entity_t *entity_manager_take(entity_initializer_t initializer)
 bool entity_manager_iterate_generator(size_t *last_entity_index, bool only_allocated, entity_t **entity)
 {
 
-    while (*last_entity_index < entity_pool.next_allocation_index) {
-        *entity = &entity_pool.entities[*last_entity_index += 1];
+    while (*last_entity_index < entity_pool.num_entities) {
+
+        *entity = &entity_pool.entities[*last_entity_index];
+        *last_entity_index += 1;
 
         if (only_allocated) {
             if (!(*entity)->allocated) {
@@ -162,32 +152,6 @@ void entity_manager_for_each(entity_consumer_t consumer, bool only_allocated)
         consumer(&entity_pool.entities[i]);
     }
 }
-
-/*void entity_manager_collision()
-{
-    for (size_t self_i = 0; self_i < entity_pool.num_entities; self_i++) {
-        entity_t *self = &entity_pool.entities[self_i];
-
-        if (!self->allocated || !self->touching) {
-            continue;
-        }
-
-
-        for (size_t checking_i = 0; checking_i < entity_pool.num_entities; checking_i++) {
-            entity_t *them = &entity_pool.entities[checking_i];
-
-            if (!them->allocated || !them->touching || self_i == checking_i) {
-                continue;
-            }
-
-            if (!gf3d_collide_is_entity_touching(self, them)) {
-                continue;
-            }
-
-            entity_touch(self, them);
-        }
-    }
-}*/
 
 void entity_manager_update()
 {
