@@ -3,8 +3,11 @@
 #include <game/game.h>
 #include <game/collision/bbox.h>
 #include <game/entity/manager.h>
+#include <game/states/save/world.h>
 
 #define WORLD_MAX_BUGS 1
+
+#define WORLD_SAVE_FILE "world-0.bin"
 
 Vector2D world_first_open_position, world_last_open_position;
 
@@ -207,12 +210,24 @@ void entity_world_init(entity_t *entity) {
     // world tile sprite
     sprite = gf2d_sprite_load_all("images/backgrounds/bg_flat.png", TILE_SIZE_X, TILE_SIZE_Y, 1);
 
-    entity_world_burrow(&world_first_open_position, &world_last_open_position, tiles, 0.4f);
-    entity_world_bug_spawn(tiles, WORLD_MAX_BUGS);
+    save_world_t save;
+    if (save_world_load(WORLD_SAVE_FILE, &save)) {
+        memcpy(tiles, save.filled, sizeof(bool) * TILES_COUNT);
+        world_last_open_position = save.last_open_position;
+        world_first_open_position = save.first_open_position;
+    } else {
+        entity_world_burrow(&world_first_open_position, &world_last_open_position, tiles, 0.4f);
+        entity_world_bug_spawn(tiles, WORLD_MAX_BUGS);
+
+
+        memcpy(save.filled, tiles, sizeof(bool) * TILES_COUNT);
+        save.last_open_position = world_last_open_position;
+        save.first_open_position = world_first_open_position;
+        save_world_dump(WORLD_SAVE_FILE, &save);
+    }
 }
 
 void entity_world_free(entity_t *entity) {
-
 }
 
 void entity_world_update(entity_t *entity) {
