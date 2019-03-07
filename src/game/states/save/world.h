@@ -1,5 +1,5 @@
-#ifndef GF2D_WORLD_H
-#define GF2D_WORLD_H
+#ifndef GF2D_STATES_SAVE_WORLD_H
+#define GF2D_STATES_SAVE_WORLD_H
 
 #include <gf2d_vector.h>
 #include <stdbool.h>

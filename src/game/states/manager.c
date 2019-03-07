@@ -3,11 +3,12 @@
 
 
 game_state playing = {
-        .num_initializers = 3,
+        .num_initializers = 4,
         .initializers = {
                 entity_type_world,
                 entity_type_cursor,
                 entity_type_player,
+                entity_type_youdied
         }
 };
 

@@ -62,3 +62,6 @@ gf2d
 *.log
 
 makefile.dep
+
+
+saves/*.bin
