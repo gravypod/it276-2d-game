@@ -30,22 +30,24 @@ void entity_healthbar_update(entity_t *entity)
 
 void entity_healthbar_draw(entity_t *entity)
 {
-    const long max = PLAYER_MAX_HEALTH;
-    const long step = max / 10;
+    if (PLAYER_ALIVE()) {
+        const long max = PLAYER_MAX_HEALTH;
+        const long step = max / 10;
 
-    for (long i = 0; (i * step) < entity->health; i++) {
-        const long x = i * HEALTH_SPRITE_WIDTH, y = 10;
-        Vector2D position = {
-                .x = x,
-                .y = y
-        };
-        gf2d_sprite_draw(
-                health_sprite,
-                position,
-                NULL, NULL, NULL, NULL,
-                NULL,
-                0
-        );
+        for (long i = 0; (i * step) < entity->health; i++) {
+            const long x = i * HEALTH_SPRITE_WIDTH, y = 10;
+            Vector2D position = {
+                    .x = x,
+                    .y = y
+            };
+            gf2d_sprite_draw(
+                    health_sprite,
+                    position,
+                    NULL, NULL, NULL, NULL,
+                    NULL,
+                    0
+            );
+        }
     }
 }
 

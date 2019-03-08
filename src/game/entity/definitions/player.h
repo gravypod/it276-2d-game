@@ -5,6 +5,8 @@
 
 extern entity_t *player;
 
+#define PLAYER_ALIVE() (player->health > 0)
+
 #define PLAYER_MAX_HEALTH 1000
 
 typedef enum {

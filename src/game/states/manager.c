@@ -94,7 +94,7 @@ bool game_state_load_entities(char *file_name)
 }
 
 bool game_state_should_save(game_state_type current, game_state_type next) {
-    if (current == game_state_playing && player->health > 0) {
+    if (current == game_state_playing && PLAYER_ALIVE()) {
         return true;
     }
     return false;
