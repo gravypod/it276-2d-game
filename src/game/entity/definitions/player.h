@@ -5,6 +5,8 @@
 
 extern entity_t *player;
 
+#define PLAYER_MAX_HEALTH 1000
+
 typedef enum {
     entity_player_status_none     = 0,
     entity_player_status_speedup  = 1,

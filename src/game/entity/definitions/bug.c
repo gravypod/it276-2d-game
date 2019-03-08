@@ -20,6 +20,7 @@ void entity_bug_init(entity_t *entity)
     entity->size.x = SPRITE_WIDTH - 30; entity->size.y = SPRITE_HEIGHT;
 
     entity->speed = ENTITY_BUG_SPEED_NORMAL;
+    entity->health = 1;
 }
 
 void entity_bug_touching(entity_t *entity, entity_t *them)
@@ -28,9 +29,12 @@ void entity_bug_touching(entity_t *entity, entity_t *them)
         return;
     }
 
+    if (entity->health <= 0) {
+        return;
+    }
+
     //printf("Bug is touching entity (%li -> %li)\n", entity->id, them->id);
-    //them->health -= 999;
-    //entity_manager_release(entity);
+    them->health -= 1;
 }
 
 void entity_bug_free(entity_t *entity)
@@ -39,7 +43,7 @@ void entity_bug_free(entity_t *entity)
 
 void entity_bug_update(entity_t *entity)
 {
-    if (entity->health < 0) {
+    if (entity->health <= 0) {
         entity->speed = 0.0f;
     } else {
         vector2d_sub(entity->velocity, player->position, entity->position);
