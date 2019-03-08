@@ -118,6 +118,13 @@ void animation_render(entity_t *entity, const animation_t *animation, animation_
     animation_frame_t frame = state->animation->frames[state->frame];
 
     if (state->tick > frame.ticks) {
+        // This frame was an action frame. Handle action
+        if (frame.action) {
+            if (action) {
+                action();
+            }
+        }
+
         state->tick = 0;
         state->frame += 1;
 
@@ -146,12 +153,6 @@ void animation_render(entity_t *entity, const animation_t *animation, animation_
             0,
             entity->roation - 90
     );
-
-    if (frame.action) {
-        if (action) {
-            action();
-        }
-    }
 
     state->tick += 1;
 }
