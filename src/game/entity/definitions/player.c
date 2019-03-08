@@ -8,8 +8,8 @@
 #include <simple_logger.h>
 #include <game/entity/manager.h>
 #include <game/collision/raytrace.h>
+#include <game/graphics/animation.h>
 
-#define NUM_FRAMES 148
 #define SPRITE_HEIGHT 128
 #define SPRITE_WIDTH 128
 
@@ -19,10 +19,58 @@
 
 #define DEG2RAD (3.14159f / 180.0f)
 
-#define PLAYER_SAVE_FILE "player.bin"
-
 entity_t *player = NULL;
 SDL_GameController *controller = NULL;
+
+
+#define NUM_ATTACKS 1
+
+typedef struct {
+    int steps;
+    float distance;
+    long damage;
+} attack_t;
+
+attack_t attacks[NUM_ATTACKS] = {
+        {
+            .steps = 30,
+            .distance = 120.0,
+            .damage = 40
+        }
+};
+
+
+entity_t *entity_player_attack(float distance, const int steps) {
+    entity_t *hit;
+    const raytrace_collision_t type = raytrace(
+            player, player->position,
+            vector2d_unit_vector_from_angle((player->roation - 90) * DEG2RAD),
+            distance, steps,
+            &hit,
+            NULL
+    );
+
+    if (type != entity_raytrace_collision_entity) {
+        return NULL;
+    }
+
+    printf("Attack and hit %zu\n", hit->id);
+
+    return hit;
+}
+
+void entity_player_fight()
+{
+    const int current_attack = 0;
+    const attack_t attack = attacks[current_attack];
+    entity_t *hit = entity_player_attack(attack.distance, attack.steps);
+
+    if (hit) {
+        hit->health -= attack.damage;
+    }
+
+    printf("Player is fighting\n");
+}
 
 void entity_player_init(entity_t *entity)
 {
@@ -31,7 +79,7 @@ void entity_player_init(entity_t *entity)
     entity->update = entity_player_update;
     entity->draw = entity_player_draw;
     entity->touching_wall = entity_player_touching_wall;
-    entity->sprite = gf2d_sprite_load_all("images/ed210_top.png", SPRITE_WIDTH, SPRITE_HEIGHT, 16);
+    //entity->sprite = gf2d_sprite_load_all("images/ed210_top.png", SPRITE_WIDTH, SPRITE_HEIGHT, 16);
     entity->position.x = 10;
     entity->position.y = 10;
 
@@ -62,51 +110,20 @@ void entity_player_init(entity_t *entity)
 
 void entity_player_touching_wall(entity_t *entity, entity_touch_wall_t wall)
 {
-    if (entity_bug_alive_count() > 0) {
-        printf("Couldn't change stages. Player still has bugs to crush\n");
-        return;
-    }
-
-    printf("Player is touching wall!\n");
-    Vector2D player_next_stage_pos = entity->position;
-
-    if (wall & entity_touch_wall_top) {
-        player_next_stage_pos.y = (state.view_height - entity->size.y) - 1;
-    } else if (wall & entity_touch_wall_bottom) {
-        player_next_stage_pos.y = 1;
-    }
-
-    if (wall & entity_touch_wall_left) {
-        player_next_stage_pos.x = (state.view_width - entity->size.x) - 1;
-    } else if (wall & entity_touch_wall_right) {
-        player_next_stage_pos.x = 1;
-    }
-
-    entity->position = player_next_stage_pos;
 }
 
 void entity_player_free(entity_t *entity)
 {
 }
 
-bool entity_player_controller_pressed()
+bool entity_player_controller_depressed()
 {
     const int right_trigger_dead_zone = 3000;
-
-    static bool previously_pressed = false;
 
     Sint16 right_trigger_depression = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
     bool currently_pressed = right_trigger_depression > right_trigger_dead_zone;
 
-    if (currently_pressed && !previously_pressed) {
-        return (previously_pressed = currently_pressed);
-    }
-
-    if (!currently_pressed && previously_pressed) {
-        return (previously_pressed = false);
-    }
-
-    return false;
+    return currently_pressed;
 }
 
 double entity_player_controller_angle()
@@ -171,46 +188,6 @@ void entity_player_update_interactions(entity_t *entity)
     if (state.keys[SDL_SCANCODE_SPACE]) {
         entity->statuses |= entity_player_status_speedup;
     }
-
-
-    if (entity_player_controller_pressed()) {
-        Vector2D pos = entity->position;
-        int steps = 10;
-        Vector2D direction = vector2d_unit_vector_from_angle(
-                (entity_player_controller_angle() - 90) * DEG2RAD
-                );
-        entity_t *entity_collision;
-        Vector2D tile_collision;
-
-        Vector2D tile_size = {TILE_SIZE_X, TILE_SIZE_Y};
-        float magnitude = vector2d_magnitude(tile_size);
-        raytrace_collision_t type = raytrace(
-                entity, pos, direction,
-                2 * magnitude, steps,
-                &entity_collision, &tile_collision
-        );
-
-        switch (type) {
-            case entity_raytrace_collision_entity: {
-                slog("Entity was hit during a raytrace");
-                break;
-            }
-
-            case entity_raytrace_collision_world: {
-                Vector2D tile = entity_world_point_to_tile(&entity->position);
-                printf("   Player Tile: %lf, %lf\n", tile.x, tile.y);
-                printf("Collision Tile: %lf, %lf\n", tile_collision.x, tile_collision.y);
-                slog("World was hit during a raytrace");
-                break;
-            }
-
-            case entity_raytrace_collision_none:
-            default: {
-                slog("Nothing was hit during a raytrace");
-                break;
-            }
-        }
-    }
 }
 
 void entity_player_update_powerups(entity_t *entity)
@@ -227,10 +204,10 @@ void entity_player_update_powerups(entity_t *entity)
 
 void entity_player_update(entity_t *entity)
 {
-    entity_player_update_interactions(entity);
     entity_player_update_powerups(entity);
     entity->velocity = entity_player_controller_walk_direction();
     entity->roation = entity_player_controller_angle();
+    entity_player_update_interactions(entity);
 
     if (entity->health <= 0) {
         entity_manager_release(entity);
@@ -239,15 +216,32 @@ void entity_player_update(entity_t *entity)
 
 void entity_player_draw(entity_t *entity)
 {
-    static int i = 0;
+    const bool moving = vector2d_magnitude(entity->velocity) > 0;
 
-    if (i++ < 3) {
-        return;
+    // Animation feet
+    static animation_state_t feet = {0};
+    static const animation_t *feet_walking_animation = &player_feet_walk;
+    static const animation_t *feet_idle_animation = &player_feet_idle;
+
+    {
+        const animation_t *current = moving ? feet_walking_animation : feet_idle_animation;
+        animation_render(entity, current, &feet, NULL);
     }
 
-    if (++entity->sprite_frame == NUM_FRAMES) {
-        entity->sprite_frame = 0;
+    // Animate torso
+    static animation_state_t torso = {0};
+    static const animation_t *torso_punch_animation = &player_body_punch_walk;
+    static const animation_t *torso_walking_animation = &player_body_flashlight_walk;
+    static const animation_t *torso_idle_animation = &player_body_flashlight_idle;
+
+    {
+        const animation_t *current = moving ? torso_walking_animation : torso_idle_animation;
+
+        if (entity_player_controller_depressed()) {
+            current = torso_punch_animation;
+        }
+
+        animation_render(entity, current, &torso, entity_player_fight);
     }
 
-    i = 0;
 }
