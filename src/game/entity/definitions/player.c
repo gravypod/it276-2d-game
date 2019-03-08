@@ -8,8 +8,8 @@
 #include <simple_logger.h>
 #include <game/entity/manager.h>
 #include <game/collision/raytrace.h>
+#include <game/graphics/animation.h>
 
-#define NUM_FRAMES 148
 #define SPRITE_HEIGHT 128
 #define SPRITE_WIDTH 128
 
@@ -34,7 +34,7 @@ typedef struct {
 attack_t attacks[NUM_ATTACKS] = {
         {
             .steps = 30,
-            .distance = ((SPRITE_HEIGHT * 1.2f) / 4.0f),
+            .distance = 120.0,
             .damage = 40
         }
 };
@@ -59,6 +59,19 @@ entity_t *entity_player_attack(float distance, const int steps) {
     return hit;
 }
 
+void entity_player_fight()
+{
+    const int current_attack = 0;
+    const attack_t attack = attacks[current_attack];
+    entity_t *hit = entity_player_attack(attack.distance, attack.steps);
+
+    if (hit) {
+        hit->health -= attack.damage;
+    }
+
+    printf("Player is fighting\n");
+}
+
 void entity_player_init(entity_t *entity)
 {
     entity->type = entity_type_player;
@@ -66,7 +79,7 @@ void entity_player_init(entity_t *entity)
     entity->update = entity_player_update;
     entity->draw = entity_player_draw;
     entity->touching_wall = entity_player_touching_wall;
-    entity->sprite = gf2d_sprite_load_all("images/ed210_top.png", SPRITE_WIDTH, SPRITE_HEIGHT, 16);
+    //entity->sprite = gf2d_sprite_load_all("images/ed210_top.png", SPRITE_WIDTH, SPRITE_HEIGHT, 16);
     entity->position.x = 10;
     entity->position.y = 10;
 
@@ -103,24 +116,14 @@ void entity_player_free(entity_t *entity)
 {
 }
 
-bool entity_player_controller_pressed()
+bool entity_player_controller_depressed()
 {
     const int right_trigger_dead_zone = 3000;
-
-    static bool previously_pressed = false;
 
     Sint16 right_trigger_depression = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
     bool currently_pressed = right_trigger_depression > right_trigger_dead_zone;
 
-    if (currently_pressed && !previously_pressed) {
-        return (previously_pressed = currently_pressed);
-    }
-
-    if (!currently_pressed && previously_pressed) {
-        return (previously_pressed = false);
-    }
-
-    return false;
+    return currently_pressed;
 }
 
 double entity_player_controller_angle()
@@ -185,17 +188,6 @@ void entity_player_update_interactions(entity_t *entity)
     if (state.keys[SDL_SCANCODE_SPACE]) {
         entity->statuses |= entity_player_status_speedup;
     }
-
-
-    if (entity_player_controller_pressed()) {
-        const int current_attack = 0;
-        const attack_t attack = attacks[current_attack];
-        entity_t *hit = entity_player_attack(attack.distance, attack.steps);
-
-        if (hit) {
-            hit->health -= attack.damage;
-        }
-    }
 }
 
 void entity_player_update_powerups(entity_t *entity)
@@ -215,6 +207,7 @@ void entity_player_update(entity_t *entity)
     entity_player_update_powerups(entity);
     entity->velocity = entity_player_controller_walk_direction();
     entity->roation = entity_player_controller_angle();
+
     entity_player_update_interactions(entity);
 
     if (entity->health <= 0) {
@@ -224,15 +217,32 @@ void entity_player_update(entity_t *entity)
 
 void entity_player_draw(entity_t *entity)
 {
-    static int i = 0;
+    const bool moving = vector2d_magnitude(entity->velocity) > 0;
 
-    if (i++ < 3) {
-        return;
+    // Animation feet
+    static animation_state_t feet = {0};
+    static const animation_t *feet_walking_animation = &player_feet_walk;
+    static const animation_t *feet_idle_animation = &player_feet_idle;
+
+    {
+        const animation_t *current = moving ? feet_walking_animation : feet_idle_animation;
+        animation_render(entity, current, &feet, NULL);
     }
 
-    if (++entity->sprite_frame == NUM_FRAMES) {
-        entity->sprite_frame = 0;
+    // Animate torso
+    static animation_state_t torso = {0};
+    static const animation_t *torso_punch_animation = &player_body_punch_walk;
+    static const animation_t *torso_walking_animation = &player_body_flashlight_walk;
+    static const animation_t *torso_idle_animation = &player_body_flashlight_idle;
+
+    {
+        const animation_t *current = moving ? torso_walking_animation : torso_idle_animation;
+
+        if (entity_player_controller_depressed()) {
+            current = torso_punch_animation;
+        }
+
+        animation_render(entity, current, &torso, entity_player_fight);
     }
 
-    i = 0;
 }
