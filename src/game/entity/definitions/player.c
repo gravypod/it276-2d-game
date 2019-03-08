@@ -207,7 +207,6 @@ void entity_player_update(entity_t *entity)
     entity_player_update_powerups(entity);
     entity->velocity = entity_player_controller_walk_direction();
     entity->roation = entity_player_controller_angle();
-
     entity_player_update_interactions(entity);
 
     if (entity->health <= 0) {
