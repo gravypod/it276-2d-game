@@ -92,7 +92,7 @@ void entity_player_init(entity_t *entity)
     entity->position.x *= TILE_SIZE_X;
     entity->position.y *= TILE_SIZE_Y;
 
-    entity->health = 100;
+    entity->health = PLAYER_MAX_HEALTH;
 
     printf("%i joysticks were found.\n\n", SDL_NumJoysticks() );
     printf("The names of the joysticks are:\n");

@@ -7,6 +7,7 @@
 #include <game/entity/definitions/background.h>
 #include <game/entity/definitions/world.h>
 #include <game/entity/definitions/youdied.h>
+#include <game/entity/definitions/healthbar.h>
 
 struct
 {
@@ -48,6 +49,7 @@ const entity_initializer_t constructors[] = {
         entity_world_init,
 
         entity_youdied_init,
+        entity_healthbar_init,
 };
 
 
