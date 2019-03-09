@@ -4,6 +4,7 @@
 
 
 Sprite *open_bag_of_chips_elemnt = NULL;
+Sprite *glowstick_elemnt = NULL;
 
 void entity_equiptment_draw_element(Sprite *element, int slot)
 {
@@ -37,12 +38,23 @@ void entity_equiptment_init(entity_t *entity)
     if (!open_bag_of_chips_elemnt) {
         open_bag_of_chips_elemnt = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_075.png");
     }
+    if (!glowstick_elemnt) {
+        glowstick_elemnt = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_024.png");
+    }
 }
 
 void entity_equiptment_draw(entity_t *entity)
 {
+    if (!PLAYER_ALIVE()) {
+        return;
+    }
+
     if (player->statuses & entity_player_status_bagofchips) {
         entity_equiptment_draw_element(open_bag_of_chips_elemnt, 0);
+    }
+
+    if (player->statuses & entity_player_status_glowstick) {
+        entity_equiptment_draw_element(glowstick_elemnt, 1);
     }
 }
 
@@ -51,5 +63,9 @@ void entity_equiptment_free(entity_t *entity)
     if (open_bag_of_chips_elemnt) {
         gf2d_sprite_free(open_bag_of_chips_elemnt);
         open_bag_of_chips_elemnt = NULL;
+    }
+    if (glowstick_elemnt) {
+        gf2d_sprite_free(glowstick_elemnt);
+        glowstick_elemnt = NULL;
     }
 }
