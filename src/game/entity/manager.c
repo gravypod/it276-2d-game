@@ -9,6 +9,7 @@
 #include <game/entity/definitions/youdied.h>
 #include <game/entity/definitions/healthbar.h>
 #include <game/entity/definitions/equiptment.h>
+#include <game/entity/definitions/pickup.h>
 
 struct
 {
@@ -52,6 +53,7 @@ const entity_initializer_t constructors[] = {
         entity_youdied_init,
         entity_healthbar_init,
         entity_equiptment_init,
+        entity_pickup_init,
 };
 
 

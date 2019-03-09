@@ -195,6 +195,29 @@ void entity_world_bug_spawn(const bool cave[TILES_COUNT], int desired_num_bugs)
     }
 }
 
+void entity_world_pickups_spawn(const bool cave[TILES_COUNT], int desired_pickups)
+{
+    int num_pickups = 0;
+    for (int i = 0; num_pickups < desired_pickups && i < TILES_COUNT; i++) {
+        if (cave[i]) {
+            continue;
+        }
+
+        float chance = (rand() % 10) / 10.f;
+
+        if (chance < 0.8f) { // 50% chance
+            continue;
+        }
+
+        num_pickups++;
+
+        // Make the bug in the world
+        entity_t *bug = entity_manager_make(entity_type_pickup);
+        bug->position.x = ((int) (i % TILES_X)) * TILE_SIZE_X;
+        bug->position.y = ((int) (i / TILES_X)) * TILE_SIZE_Y;
+    }
+}
+
 void entity_world_init(entity_t *entity) {
     entity->type = entity_type_world;
     entity->free = entity_world_free;
@@ -221,6 +244,7 @@ void entity_world_init(entity_t *entity) {
     } else {
         entity_world_burrow(&world_first_open_position, &world_last_open_position, tiles, 0.4f);
         entity_world_bug_spawn(tiles, WORLD_MAX_BUGS);
+        entity_world_pickups_spawn(tiles, 1);
 
 
         memcpy(save.filled, tiles, sizeof(bool) * TILES_COUNT);
