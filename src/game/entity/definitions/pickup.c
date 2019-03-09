@@ -3,13 +3,12 @@
 #include "pickup.h"
 #include "player.h"
 
-Sprite *glowstick = NULL, *superglue = NULL;
-
 entity_pickup_type entity_pickup_random_type() {
     entity_pickup_type types[] = {
             entity_pickup_glowstick,
             entity_pickup_superglue,
-            entity_pickup_bagofchips
+            entity_pickup_bagofchips,
+            entity_pickup_leftovercoffee
     };
     int i = rand() % ((sizeof(types) / sizeof(entity_pickup_type)));
     return types[i];
@@ -32,6 +31,9 @@ void entity_pickup_init(entity_t *entity) {
             break;
         case entity_pickup_bagofchips:
             entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_078.png");
+            break;
+        case entity_pickup_leftovercoffee:
+            entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_003.png");
             break;
         default:
             slog("Bad pickup status selected.");
@@ -56,6 +58,8 @@ void entity_pickup_touching(entity_t *entity, entity_t *them) {
         status = entity_player_status_superglue;
     } else if (entity->statuses == entity_pickup_bagofchips) {
         status = entity_player_status_bagofchips;
+    } else if (entity->statuses == entity_pickup_leftovercoffee) {
+        status = entity_player_status_speedup;
     } else {
         return;
     }
