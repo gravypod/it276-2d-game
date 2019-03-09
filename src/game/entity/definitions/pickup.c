@@ -5,10 +5,13 @@
 
 entity_pickup_type entity_pickup_random_type() {
     entity_pickup_type types[] = {
+/*
             entity_pickup_glowstick,
             entity_pickup_superglue,
             entity_pickup_bagofchips,
-            entity_pickup_leftovercoffee
+            entity_pickup_leftovercoffee,
+*/
+            entity_pickup_wettowel
     };
     int i = rand() % ((sizeof(types) / sizeof(entity_pickup_type)));
     return types[i];
@@ -35,6 +38,9 @@ void entity_pickup_init(entity_t *entity) {
         case entity_pickup_leftovercoffee:
             entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_003.png");
             break;
+        case entity_pickup_wettowel:
+            entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_031.png");
+            break;
         default:
             slog("Bad pickup status selected.");
             break;
@@ -50,26 +56,37 @@ void entity_pickup_touching(entity_t *entity, entity_t *them) {
         return;
     }
 
-    entity_player_status_t status;
+    if (entity->statuses == entity_pickup_wettowel) {
+        long increment = PLAYER_MAX_HEALTH / 10;
 
-    if (entity->statuses == entity_pickup_glowstick) {
-        status = entity_player_status_glowstick;
-    } else if (entity->statuses == entity_pickup_superglue) {
-        status = entity_player_status_superglue;
-    } else if (entity->statuses == entity_pickup_bagofchips) {
-        status = entity_player_status_bagofchips;
-    } else if (entity->statuses == entity_pickup_leftovercoffee) {
-        status = entity_player_status_speedup;
+        if (them->health + increment > PLAYER_MAX_HEALTH) {
+            return;
+        }
+
+        them->health += increment;
     } else {
-        return;
+        entity_player_status_t status;
+
+        if (entity->statuses == entity_pickup_glowstick) {
+            status = entity_player_status_glowstick;
+        } else if (entity->statuses == entity_pickup_superglue) {
+            status = entity_player_status_superglue;
+        } else if (entity->statuses == entity_pickup_bagofchips) {
+            status = entity_player_status_bagofchips;
+        } else if (entity->statuses == entity_pickup_leftovercoffee) {
+            status = entity_player_status_speedup;
+        } else {
+            return;
+        }
+
+        // Does this player already have my status?
+        if (them->statuses & status) {
+            return;
+        }
+
+        them->statuses |= status;
     }
 
-    // Does this player already have my status?
-    if (them->statuses & status) {
-        return;
-    }
-
-    them->statuses |= status;
     entity_manager_release(entity);
 }
 
