@@ -3,8 +3,9 @@
 #include "player.h"
 
 
-Sprite *open_bag_of_chips_elemnt = NULL;
-Sprite *glowstick_elemnt = NULL;
+Sprite  *open_bag_of_chips_elemnt = NULL,
+        *glowstick_elemnt = NULL,
+        *superglue_elemnt = NULL;
 
 void entity_equiptment_draw_element(Sprite *element, int slot)
 {
@@ -41,6 +42,9 @@ void entity_equiptment_init(entity_t *entity)
     if (!glowstick_elemnt) {
         glowstick_elemnt = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_024.png");
     }
+    if (!superglue_elemnt) {
+        superglue_elemnt = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_103.png");
+    }
 }
 
 void entity_equiptment_draw(entity_t *entity)
@@ -56,6 +60,10 @@ void entity_equiptment_draw(entity_t *entity)
     if (player->statuses & entity_player_status_glowstick) {
         entity_equiptment_draw_element(glowstick_elemnt, 1);
     }
+
+    if (player->statuses & entity_player_status_superglue) {
+        entity_equiptment_draw_element(superglue_elemnt, 2);
+    }
 }
 
 void entity_equiptment_free(entity_t *entity)
@@ -67,5 +75,9 @@ void entity_equiptment_free(entity_t *entity)
     if (glowstick_elemnt) {
         gf2d_sprite_free(glowstick_elemnt);
         glowstick_elemnt = NULL;
+    }
+    if (superglue_elemnt) {
+        gf2d_sprite_free(superglue_elemnt);
+        superglue_elemnt = NULL;
     }
 }

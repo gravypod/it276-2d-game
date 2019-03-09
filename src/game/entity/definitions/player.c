@@ -94,6 +94,7 @@ void entity_player_init(entity_t *entity)
 
     entity->health = PLAYER_MAX_HEALTH;
 
+    entity->statuses |= entity_player_status_superglue;
     printf("%i joysticks were found.\n\n", SDL_NumJoysticks() );
     printf("The names of the joysticks are:\n");
 

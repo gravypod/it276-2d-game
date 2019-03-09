@@ -15,6 +15,7 @@ typedef enum {
     entity_player_status_slowdown = 2,
     entity_player_status_bagofchips = 4,
     entity_player_status_glowstick = 8,
+    entity_player_status_superglue = 16,
 } entity_player_status_t;
 
 void entity_player_init(entity_t *entity);
