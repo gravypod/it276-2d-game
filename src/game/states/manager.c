@@ -6,13 +6,14 @@
 
 game_state playing = {
         .save_file_name = "game.bin",
-        .num_initializers = 5,
+        .num_initializers = 6,
         .initializers = {
                 entity_type_world,
                 entity_type_cursor,
                 entity_type_player,
                 entity_type_youdied,
-                entity_type_healthbar
+                entity_type_healthbar,
+                entity_type_equiptment,
         }
 };
 
