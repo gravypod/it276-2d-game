@@ -43,7 +43,7 @@ void entity_youdied_init(entity_t *entity) {
 }
 
 void entity_youdied_draw(entity_t *entity) {
-    if (player != NULL && player->health <= 0) {
+    if (player != NULL && !PLAYER_ALIVE()) {
         entity_youdied_render_message(font_cached, "You Died!", 3);
     }
 }

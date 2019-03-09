@@ -8,6 +8,7 @@
 #include <game/entity/definitions/world.h>
 #include <game/entity/definitions/youdied.h>
 #include <game/entity/definitions/healthbar.h>
+#include <game/entity/definitions/equiptment.h>
 
 struct
 {
@@ -50,6 +51,7 @@ const entity_initializer_t constructors[] = {
 
         entity_youdied_init,
         entity_healthbar_init,
+        entity_equiptment_init,
 };
 
 

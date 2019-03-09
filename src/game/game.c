@@ -17,7 +17,7 @@ game_sate_t state = {
         .keys = NULL,
 
         .view_width = 1200, .render_width = 1200,
-        .view_height = 720, .render_height = 720
+        .view_height = 600, .render_height = 600
 };
 
 void game_graphics_init()

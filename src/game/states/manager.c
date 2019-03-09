@@ -6,13 +6,14 @@
 
 game_state playing = {
         .save_file_name = "game.bin",
-        .num_initializers = 5,
+        .num_initializers = 6,
         .initializers = {
                 entity_type_world,
                 entity_type_cursor,
                 entity_type_player,
                 entity_type_youdied,
-                entity_type_healthbar
+                entity_type_healthbar,
+                entity_type_equiptment,
         }
 };
 
@@ -94,7 +95,7 @@ bool game_state_load_entities(char *file_name)
 }
 
 bool game_state_should_save(game_state_type current, game_state_type next) {
-    if (current == game_state_playing && player->health > 0) {
+    if (current == game_state_playing && PLAYER_ALIVE()) {
         return true;
     }
     return false;
