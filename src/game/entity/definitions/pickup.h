@@ -7,6 +7,7 @@
 typedef enum {
     entity_pickup_none = 0,
     entity_pickup_glowstick,
+    entity_pickup_superglue,
 } entity_pickup_type;
 
 void entity_pickup_init(entity_t *entity);

@@ -244,7 +244,7 @@ void entity_world_init(entity_t *entity) {
     } else {
         entity_world_burrow(&world_first_open_position, &world_last_open_position, tiles, 0.4f);
         entity_world_bug_spawn(tiles, WORLD_MAX_BUGS);
-        entity_world_pickups_spawn(tiles, 1);
+        entity_world_pickups_spawn(tiles, 5);
 
 
         memcpy(save.filled, tiles, sizeof(bool) * TILES_COUNT);
