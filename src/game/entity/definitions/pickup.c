@@ -3,7 +3,17 @@
 #include "pickup.h"
 #include "player.h"
 
-Sprite *glowstick = NULL;
+Sprite *glowstick = NULL, *superglue = NULL;
+
+entity_pickup_type entity_pickup_random_type()
+{
+    entity_pickup_type types[] = {
+            entity_pickup_glowstick,
+            entity_pickup_superglue,
+    };
+    int i = rand() % ((sizeof(types) / sizeof(entity_pickup_type)));
+    return types[i];
+}
 
 void entity_pickup_init(entity_t *entity)
 {
@@ -12,11 +22,14 @@ void entity_pickup_init(entity_t *entity)
     entity->free = entity_pickup_free;
 
     // Set the type of entity to add into the player's inventory
-    entity->statuses = entity_pickup_glowstick;
+    entity->statuses = entity_pickup_random_type();
 
     switch (entity->statuses) {
         case entity_pickup_glowstick:
             entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_024.png");
+            break;
+        case entity_pickup_superglue:
+            entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_103.png");
             break;
         default:
             slog("Bad pickup status selected.");
@@ -34,10 +47,12 @@ void entity_pickup_touching(entity_t *entity, entity_t *them)
         return;
     }
 
-    entity_player_status_t status = entity_player_status_none;
+    entity_player_status_t status;
 
     if (entity->statuses == entity_pickup_glowstick) {
         status = entity_player_status_glowstick;
+    } else if (entity->statuses == entity_pickup_superglue) {
+        status = entity_player_status_superglue;
     } else {
         return;
     }
@@ -47,7 +62,6 @@ void entity_pickup_touching(entity_t *entity, entity_t *them)
         return;
     }
 
-    printf("Giving stat\n");
     them->statuses |= status;
     entity_manager_release(entity);
 }
