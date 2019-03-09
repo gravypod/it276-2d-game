@@ -5,18 +5,17 @@
 
 Sprite *glowstick = NULL, *superglue = NULL;
 
-entity_pickup_type entity_pickup_random_type()
-{
+entity_pickup_type entity_pickup_random_type() {
     entity_pickup_type types[] = {
             entity_pickup_glowstick,
             entity_pickup_superglue,
+            entity_pickup_bagofchips
     };
     int i = rand() % ((sizeof(types) / sizeof(entity_pickup_type)));
     return types[i];
 }
 
-void entity_pickup_init(entity_t *entity)
-{
+void entity_pickup_init(entity_t *entity) {
     entity->type = entity_type_pickup;
     entity->touching = entity_pickup_touching;
     entity->free = entity_pickup_free;
@@ -31,6 +30,9 @@ void entity_pickup_init(entity_t *entity)
         case entity_pickup_superglue:
             entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_103.png");
             break;
+        case entity_pickup_bagofchips:
+            entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_078.png");
+            break;
         default:
             slog("Bad pickup status selected.");
             break;
@@ -41,8 +43,7 @@ void entity_pickup_init(entity_t *entity)
 
 }
 
-void entity_pickup_touching(entity_t *entity, entity_t *them)
-{
+void entity_pickup_touching(entity_t *entity, entity_t *them) {
     if (them->id != player->id) {
         return;
     }
@@ -53,6 +54,8 @@ void entity_pickup_touching(entity_t *entity, entity_t *them)
         status = entity_player_status_glowstick;
     } else if (entity->statuses == entity_pickup_superglue) {
         status = entity_player_status_superglue;
+    } else if (entity->statuses == entity_pickup_bagofchips) {
+        status = entity_player_status_bagofchips;
     } else {
         return;
     }
@@ -66,6 +69,5 @@ void entity_pickup_touching(entity_t *entity, entity_t *them)
     entity_manager_release(entity);
 }
 
-void entity_pickup_free(entity_t *entity)
-{
+void entity_pickup_free(entity_t *entity) {
 }
