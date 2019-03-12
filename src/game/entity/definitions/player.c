@@ -2,6 +2,7 @@
 #include "player.h"
 #include "bug.h"
 #include "world.h"
+#include "equiptment.h"
 
 #include <SDL2/SDL.h>
 #include <game/game.h>
@@ -116,6 +117,47 @@ void entity_player_free(entity_t *entity)
 {
 }
 
+bool entity_player_controller_lb_depressed()
+{
+    static bool last = false;
+    bool now = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
+
+    if (now ^ last) {
+        if (last) {
+            last = false;
+            return false;
+        }
+
+        if (now) {
+            last = true;
+            return true;
+        }
+    } else {
+        return false;
+    }
+}
+
+
+bool entity_player_controller_rb_depressed()
+{
+    static bool last = false;
+    bool now = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+
+    if (now ^ last) {
+        if (last) {
+            last = false;
+            return false;
+        }
+
+        if (now) {
+            last = true;
+            return true;
+        }
+    } else {
+        return false;
+    }
+}
+
 bool entity_player_controller_depressed()
 {
     const int right_trigger_dead_zone = 3000;
@@ -185,8 +227,12 @@ void entity_player_update_interactions(entity_t *entity)
         state.running = false;
     }
 
-    if (state.keys[SDL_SCANCODE_SPACE]) {
-        entity->statuses |= entity_player_status_speedup;
+    if (entity_player_controller_rb_depressed()) {
+        entity_equiptment_selection_right();
+    }
+
+    if (entity_player_controller_lb_depressed()) {
+        entity_equiptment_selection_left();
     }
 }
 

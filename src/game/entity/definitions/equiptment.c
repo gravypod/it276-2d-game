@@ -2,10 +2,135 @@
 #include "equiptment.h"
 #include "player.h"
 
+entity_t *equiptment = NULL;
 
-Sprite  *open_bag_of_chips_elemnt = NULL,
-        *glowstick_elemnt = NULL,
-        *superglue_elemnt = NULL;
+Sprite  *selected_elemnt = NULL;
+
+typedef struct {
+    char *file_name;
+    Sprite *sprite;
+    uint32_t player_status;
+} equiptment_slot_t;
+
+#define NUM_EQUIPTMENT_SLOTS 3
+equiptment_slot_t slots[NUM_EQUIPTMENT_SLOTS] = {
+        {
+                .file_name = "images/kenny-nl/generic-items/genericItem_color_075.png",
+                .player_status = entity_player_status_bagofchips,
+                .sprite = NULL,
+        },
+        {
+                .file_name = "images/kenny-nl/generic-items/genericItem_color_024.png",
+                .player_status = entity_player_status_glowstick,
+                .sprite = NULL,
+        },
+        {
+                .file_name = "images/kenny-nl/generic-items/genericItem_color_103.png",
+                .player_status = entity_player_status_superglue,
+                .sprite = NULL,
+        },
+};
+
+int entity_equiptment_selection_count()
+{
+    int count = 0;
+
+    for (int i = 0; i < NUM_EQUIPTMENT_SLOTS; i++) {
+        count += (player->statuses & slots[i].player_status) > 0;
+    }
+
+    return count;
+}
+
+uint32_t entity_equiptment_selection_left_next()
+{
+    int count = entity_equiptment_selection_count();
+    int last;
+
+    if (equiptment->statuses != UINT32_MAX) {
+        last = (int) equiptment->statuses;
+    } else {
+        last = count + 1;
+    }
+
+    for (int i = last - 1; i >= 0; i--) {
+        if (player->statuses & slots[i].player_status) {
+            return (uint32_t) i;
+        }
+    }
+
+    if (count > 0) {
+        // Search left from last slot
+        for (int i = NUM_EQUIPTMENT_SLOTS - 1; i >= 0; i--) {
+            if (player->statuses & slots[i].player_status) {
+                return (uint32_t) i;
+            }
+        }
+    }
+
+    return UINT32_MAX;
+}
+
+uint32_t entity_equiptment_selection_right_next()
+{
+    int count = entity_equiptment_selection_count();
+    int last;
+
+    if (equiptment->statuses != UINT32_MAX) {
+        last = (int) equiptment->statuses;
+    } else {
+        last = -1;
+    }
+
+    // Search right of current possition
+    for (int i = last + 1; i <= count; i++) {
+        if (player->statuses & slots[i].player_status) {
+            return (uint32_t) i;
+        }
+    }
+
+    if (count > 0) {
+        // Search right from 0
+        for (int i = 0; i < NUM_EQUIPTMENT_SLOTS; i++) {
+            if (player->statuses & slots[i].player_status) {
+                return (uint32_t) i;
+            }
+        }
+    }
+
+    return UINT32_MAX;
+}
+
+void entity_equiptment_selection_left()
+{
+    uint32_t  next = entity_equiptment_selection_left_next();
+
+    if (next == UINT32_MAX) {
+        return;
+    }
+
+    equiptment->statuses = next;
+}
+
+int entity_equiptment_selection()
+{
+    if (equiptment->statuses == UINT32_MAX) {
+        return -1;
+    }
+
+    return (int) equiptment->statuses;
+}
+
+void entity_equiptment_selection_right()
+{
+    uint32_t next = entity_equiptment_selection_right_next();
+
+    if (next == UINT32_MAX) {
+        return;
+    }
+
+    equiptment->statuses = next;
+}
 
 void entity_equiptment_draw_element(Sprite *element, int slot)
 {
@@ -36,15 +161,17 @@ void entity_equiptment_init(entity_t *entity)
     entity->type = entity_type_equiptment;
     entity->draw = entity_equiptment_draw;
     entity->free = entity_equiptment_free;
-    if (!open_bag_of_chips_elemnt) {
-        open_bag_of_chips_elemnt = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_075.png");
+
+    if (!selected_elemnt) {
+        selected_elemnt = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_044.png");
     }
-    if (!glowstick_elemnt) {
-        glowstick_elemnt = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_024.png");
+
+    for (int i = 0; i < NUM_EQUIPTMENT_SLOTS; i++) {
+        slots[i].sprite = gf2d_sprite_load_image(slots[i].file_name);
     }
-    if (!superglue_elemnt) {
-        superglue_elemnt = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_103.png");
-    }
+
+    entity->statuses = UINT32_MAX;
+    equiptment = entity;
 }
 
 void entity_equiptment_draw(entity_t *entity)
@@ -53,31 +180,29 @@ void entity_equiptment_draw(entity_t *entity)
         return;
     }
 
-    if (player->statuses & entity_player_status_bagofchips) {
-        entity_equiptment_draw_element(open_bag_of_chips_elemnt, 0);
+    for (int i = 0; i < NUM_EQUIPTMENT_SLOTS; i++) {
+        if (player->statuses & slots[i].player_status) {
+            entity_equiptment_draw_element(slots[i].sprite, i);
+        }
     }
 
-    if (player->statuses & entity_player_status_glowstick) {
-        entity_equiptment_draw_element(glowstick_elemnt, 1);
-    }
-
-    if (player->statuses & entity_player_status_superglue) {
-        entity_equiptment_draw_element(superglue_elemnt, 2);
+    if (entity->statuses != UINT32_MAX) {
+        entity_equiptment_draw_element(selected_elemnt, (int) entity->statuses);
     }
 }
 
 void entity_equiptment_free(entity_t *entity)
 {
-    if (open_bag_of_chips_elemnt) {
-        gf2d_sprite_free(open_bag_of_chips_elemnt);
-        open_bag_of_chips_elemnt = NULL;
+    for (int i = 0; i < NUM_EQUIPTMENT_SLOTS; i++) {
+        gf2d_sprite_free(slots[i].sprite);
+        slots[i].sprite = NULL;
     }
-    if (glowstick_elemnt) {
-        gf2d_sprite_free(glowstick_elemnt);
-        glowstick_elemnt = NULL;
+
+
+    if (selected_elemnt) {
+        gf2d_sprite_free(selected_elemnt);
+        selected_elemnt = NULL;
     }
-    if (superglue_elemnt) {
-        gf2d_sprite_free(superglue_elemnt);
-        superglue_elemnt = NULL;
-    }
+
+    equiptment = NULL;
 }
