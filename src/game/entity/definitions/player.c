@@ -193,11 +193,17 @@ void entity_player_update_interactions(entity_t *entity)
 void entity_player_update_powerups(entity_t *entity)
 {
     // Handle speed up, slow down, and normal walk speed
-    if (entity->statuses & entity_player_status_slowdown) {
-        entity->speed = ENTITY_PLAYER_SPEED_SLOW;
-    } else if (entity->statuses & entity_player_status_speedup) {
-        entity->speed = ENTITY_PLAYER_SPEED_FAST;
-    } else {
+    const bool slow = (entity->statuses & entity_player_status_slowdown) != 0;
+    const bool fast = (entity->statuses & entity_player_status_speedup) != 0;
+
+    if (slow ^ fast) {
+        if (slow) {
+            entity->speed = ENTITY_PLAYER_SPEED_SLOW;
+        }
+        if (fast) {
+            entity->speed = ENTITY_PLAYER_SPEED_FAST;
+        }
+    }  else {
         entity->speed = ENTITY_PLAYER_SPEED_NORMAL;
     }
 }

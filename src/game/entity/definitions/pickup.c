@@ -5,12 +5,10 @@
 
 entity_pickup_type entity_pickup_random_type() {
     entity_pickup_type types[] = {
-/*
             entity_pickup_glowstick,
             entity_pickup_superglue,
             entity_pickup_bagofchips,
             entity_pickup_leftovercoffee,
-*/
             entity_pickup_wettowel
     };
     int i = rand() % ((sizeof(types) / sizeof(entity_pickup_type)));
