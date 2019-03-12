@@ -218,6 +218,11 @@ void entity_player_update(entity_t *entity)
     if (entity->health <= 0) {
         entity_manager_release(entity);
     }
+
+
+    // Remove slowdown effect after applying update.
+    // This will be reapplied if the player is still on broken glass
+    entity->statuses &= ~entity_player_status_slowdown;
 }
 
 void entity_player_draw(entity_t *entity)

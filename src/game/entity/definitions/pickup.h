@@ -11,6 +11,7 @@ typedef enum {
     entity_pickup_bagofchips,
     entity_pickup_leftovercoffee,
     entity_pickup_wettowel,
+    entity_pickup_brokenglass,
 } entity_pickup_type;
 
 void entity_pickup_init(entity_t *entity);

@@ -9,7 +9,8 @@ entity_pickup_type entity_pickup_random_type() {
             entity_pickup_superglue,
             entity_pickup_bagofchips,
             entity_pickup_leftovercoffee,
-            entity_pickup_wettowel
+            entity_pickup_wettowel,
+            entity_pickup_brokenglass,
     };
     int i = rand() % ((sizeof(types) / sizeof(entity_pickup_type)));
     return types[i];
@@ -39,6 +40,9 @@ void entity_pickup_init(entity_t *entity) {
         case entity_pickup_wettowel:
             entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_031.png");
             break;
+        case entity_pickup_brokenglass:
+            entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_044.png");
+            break;
         default:
             slog("Bad pickup status selected.");
             break;
@@ -53,6 +57,8 @@ void entity_pickup_touching(entity_t *entity, entity_t *them) {
     if (them->id != player->id) {
         return;
     }
+
+    bool release = true;
 
     if (entity->statuses == entity_pickup_wettowel) {
         long increment = PLAYER_MAX_HEALTH / 10;
@@ -73,6 +79,10 @@ void entity_pickup_touching(entity_t *entity, entity_t *them) {
             status = entity_player_status_bagofchips;
         } else if (entity->statuses == entity_pickup_leftovercoffee) {
             status = entity_player_status_speedup;
+        } else if (entity->statuses == entity_pickup_brokenglass) {
+            status = entity_player_status_slowdown;
+            // Broken glass will remain on the floor even after a player walks over it
+            release = false;
         } else {
             return;
         }
@@ -85,7 +95,9 @@ void entity_pickup_touching(entity_t *entity, entity_t *them) {
         them->statuses |= status;
     }
 
-    entity_manager_release(entity);
+    if (release) {
+        entity_manager_release(entity);
+    }
 }
 
 void entity_pickup_free(entity_t *entity) {
