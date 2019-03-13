@@ -253,8 +253,6 @@ void entity_player_update_powerups(entity_t *entity)
 
 void entity_player_update(entity_t *entity)
 {
-    entity->statuses |= entity_player_status_glowstick;
-
     entity_player_update_powerups(entity);
     entity->velocity = entity_player_controller_walk_direction();
     entity->roation = entity_player_controller_angle();
@@ -298,22 +296,11 @@ void entity_player_throw()
     vector2d_scale(position, direction, 128);
     vector2d_add(position, player->position, position);
 
-    entity_type_t spawns = entity_type_bug;
-
-    switch (entity_equiptment_slot_type(slot)) {
-        case entity_player_status_glowstick:
-            spawns = entity_type_glowstick;
-            break;
-        default:
-            spawns = entity_type_bug;
-            break;
-    }
-
     entity_t *thrown = entity_manager_make(entity_type_throwing);
     thrown->position = position;
     thrown->velocity = direction;
     thrown->sprite = entity_equiptment_slot_sprite(slot);
-    thrown->statuses = spawns;
+    thrown->statuses = entity_equiptment_slot_type(slot);
 
     printf("Player is throwing\n");
 }

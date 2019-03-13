@@ -11,7 +11,7 @@
 #include <game/entity/definitions/equiptment.h>
 #include <game/entity/definitions/pickup.h>
 #include <game/entity/definitions/throwing.h>
-#include <game/entity/definitions/glowstick.h>
+#include <game/entity/definitions/plop.h>
 
 struct
 {
@@ -58,7 +58,7 @@ const entity_initializer_t constructors[] = {
         entity_pickup_init,
         entity_throwing_init,
 
-        entity_glowstick_init,
+        entity_plop_init,
 };
 
 

@@ -49,7 +49,23 @@ uint32_t entity_equiptment_slot_type(int slot)
 
 Sprite *entity_equiptment_slot_sprite(int slot)
 {
+    if (slot == -1) {
+        return NULL;
+    }
+    if (!slots[slot].sprite) {
+        slots[slot].sprite = gf2d_sprite_load_image(slots[slot].file_name);
+    }
+
     return slots[slot].sprite;
+}
+
+int entity_equiptment_status_to_slot(uint32_t status)
+{
+    for (int i = 0; i < NUM_EQUIPTMENT_SLOTS; i++) {
+        if (slots[i].player_status == status)
+            return i;
+    }
+    return -1;
 }
 
 

@@ -37,7 +37,8 @@ void entity_throwing_free(entity_t *entity)
 {
     if (entity->statuses != UINT32_MAX) {
         // Drop the entity
-        entity_t *dropped = entity_manager_make(entity->statuses);
+        entity_t *dropped = entity_manager_make(entity_type_plop);
+        dropped->statuses = entity->statuses;
         dropped->position = entity->position;
         dropped->roation = entity->roation;
     }
