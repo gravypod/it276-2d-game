@@ -9,8 +9,10 @@ void entity_plop_draw(entity_t *entity) {
         return;
     }
 
-    int slot = entity_equiptment_status_to_slot(entity->statuses);
-    entity->sprite = entity_equiptment_slot_sprite(slot);
+    if (entity->sprite == NULL) {
+        int slot = entity_equiptment_status_to_slot(entity->statuses);
+        entity->sprite = entity_equiptment_slot_sprite(slot);
+    }
 }
 
 void entity_plop_init(entity_t *entity) {
