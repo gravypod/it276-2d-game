@@ -60,19 +60,6 @@ entity_t *entity_player_attack(float distance, const int steps) {
     return hit;
 }
 
-void entity_player_fight()
-{
-    const int current_attack = 0;
-    const attack_t attack = attacks[current_attack];
-    entity_t *hit = entity_player_attack(attack.distance, attack.steps);
-
-    if (hit) {
-        hit->health -= attack.damage;
-    }
-
-    printf("Player is fighting\n");
-}
-
 void entity_player_init(entity_t *entity)
 {
     entity->type = entity_type_player;
@@ -158,12 +145,22 @@ bool entity_player_controller_rb_depressed()
     }
 }
 
-bool entity_player_controller_depressed()
+bool entity_player_controller_throw_depressed()
 {
-    const int right_trigger_dead_zone = 3000;
+    const int trigger_dead_zone = 3000;
+
+    Sint16 right_trigger_depression = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+    bool currently_pressed = right_trigger_depression > trigger_dead_zone;
+
+    return currently_pressed;
+}
+
+bool entity_player_controller_attack_depressed()
+{
+    const int trigger_dead_zone = 3000;
 
     Sint16 right_trigger_depression = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
-    bool currently_pressed = right_trigger_depression > right_trigger_dead_zone;
+    bool currently_pressed = right_trigger_depression > trigger_dead_zone;
 
     return currently_pressed;
 }
@@ -271,6 +268,44 @@ void entity_player_update(entity_t *entity)
     entity->statuses &= ~entity_player_status_slowdown;
 }
 
+
+
+void entity_player_fight()
+{
+    const int current_attack = 0;
+    const attack_t attack = attacks[current_attack];
+    entity_t *hit = entity_player_attack(attack.distance, attack.steps);
+
+    if (hit) {
+        hit->health -= attack.damage;
+    }
+
+    printf("Player is fighting\n");
+}
+
+void entity_player_throw()
+{
+    const int slot = entity_equiptment_selection();
+    if (slot == -1) {
+        printf("Player doesn't have any equiptment\n");
+        return;
+    }
+
+    Vector2D direction = vector2d_unit_vector_from_angle((player->roation - 90) * DEG2RAD);
+    Vector2D position;
+    vector2d_scale(position, direction, 128);
+    vector2d_add(position, player->position, position);
+
+    entity_t *thrown = entity_manager_make(entity_type_throwing);
+    thrown->position = position;
+    thrown->velocity = direction;
+    thrown->sprite = entity_equiptment_slot_sprite(slot);
+    thrown->statuses = entity_type_bug;
+
+    printf("Player is throwing\n");
+}
+
+
 void entity_player_draw(entity_t *entity)
 {
     const bool moving = vector2d_magnitude(entity->velocity) > 0;
@@ -293,12 +328,17 @@ void entity_player_draw(entity_t *entity)
 
     {
         const animation_t *current = moving ? torso_walking_animation : torso_idle_animation;
+        void (*action)() = NULL;
 
-        if (entity_player_controller_depressed()) {
+        if (entity_player_controller_throw_depressed()) {
+            action = entity_player_throw;
+            current = torso_punch_animation;
+        } else if (entity_player_controller_attack_depressed()) {
+            action = entity_player_fight;
             current = torso_punch_animation;
         }
 
-        animation_render(entity, current, &torso, entity_player_fight);
+        animation_render(entity, current, &torso, action);
     }
 
 }
