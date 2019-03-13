@@ -23,6 +23,12 @@ bool raytrace_collision_entity(entity_t *shooter, Vector2D *position, entity_t *
 
     while (entity_manager_iterate_generator(&i, true, &test)) {
 
+        // Plops cannot be damaged by raytaces
+        // This is ugly and should be a param
+        if (test->type == entity_type_plop) {
+            continue;
+        }
+
         if (shooter) {
             // Don't test against myself.
             if (test->id == shooter->id) {

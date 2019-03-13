@@ -25,16 +25,20 @@ void entity_bug_init(entity_t *entity)
 
 void entity_bug_touching(entity_t *entity, entity_t *them)
 {
-    if (them->id != player->id) {
-        return;
-    }
-
+    // If we're dead we can't do anything
     if (entity->health <= 0) {
         return;
     }
 
-    //printf("Bug is touching entity (%li -> %li)\n", entity->id, them->id);
-    them->health -= 1;
+    // If we touched a superglue
+    if (them->type == entity_type_plop && them->statuses == entity_player_status_superglue) {
+        entity->speed = 0;
+    }
+
+    if (them->id == player->id) {
+        printf("Bug was damaged by player touch (%li -> %li)\n", entity->id, them->id);
+        them->health -= 1;
+    }
 }
 
 void entity_bug_free(entity_t *entity)
