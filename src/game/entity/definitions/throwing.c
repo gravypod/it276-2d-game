@@ -26,7 +26,6 @@ void entity_throwing_update(entity_t *entity)
     if (entity->statuses != UINT32_MAX) {
         if (entity->speed >= 0.01) {
             entity->speed *= 0.9f;
-            printf("Moving\n");
             return;
         }
     }
