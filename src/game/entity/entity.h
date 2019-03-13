@@ -32,6 +32,7 @@ typedef enum {
     entity_type_healthbar,
     entity_type_equiptment,
     entity_type_pickup,
+    entity_type_throwing,
 } entity_type_t;
 
 /**

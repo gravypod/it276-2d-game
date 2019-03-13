@@ -42,6 +42,17 @@ int entity_equiptment_selection_count()
     return count;
 }
 
+uint32_t entity_equiptment_slot_type(int slot)
+{
+    return slots[slot].player_status;
+}
+
+Sprite *entity_equiptment_slot_sprite(int slot)
+{
+    return slots[slot].sprite;
+}
+
+
 uint32_t entity_equiptment_selection_left_next()
 {
     int count = entity_equiptment_selection_count();
