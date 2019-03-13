@@ -253,8 +253,6 @@ void entity_player_update_powerups(entity_t *entity)
 
 void entity_player_update(entity_t *entity)
 {
-    entity->statuses |= entity_player_status_glowstick;
-
     entity_player_update_powerups(entity);
     entity->velocity = entity_player_controller_walk_direction();
     entity->roation = entity_player_controller_angle();

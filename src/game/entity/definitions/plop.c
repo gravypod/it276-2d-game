@@ -1,6 +1,7 @@
 #include <game/entity/manager.h>
 #include "plop.h"
 #include "player.h"
+#include "equiptment.h"
 
 void entity_plop_draw(entity_t *entity) {
     if (entity->sprite == NULL && entity->statuses == UINT32_MAX) {
@@ -8,13 +9,8 @@ void entity_plop_draw(entity_t *entity) {
         return;
     }
 
-    switch (entity->statuses) {
-        case entity_player_status_glowstick:
-            entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_024.png");
-            break;
-        default:
-            entity->sprite = NULL;
-    }
+    int slot = entity_equiptment_status_to_slot(entity->statuses);
+    entity->sprite = entity_equiptment_slot_sprite(slot);
 }
 
 void entity_plop_init(entity_t *entity) {

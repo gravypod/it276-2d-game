@@ -14,5 +14,6 @@ void entity_equiptment_selection_right();
 int entity_equiptment_selection();
 uint32_t entity_equiptment_slot_type(int slot);
 Sprite *entity_equiptment_slot_sprite(int slot);
+int entity_equiptment_status_to_slot(uint32_t status);
 
 #endif
