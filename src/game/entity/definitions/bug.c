@@ -4,9 +4,65 @@
 #include "plop.h"
 
 #define ENTITY_BUG_SPEED_NORMAL 1
+#define ENTITY_MIN_GLOWSTICK_RADIUS 300
 
 #define SPRITE_HEIGHT 128
 #define SPRITE_WIDTH 128
+
+entity_t *entity_bug_next_possition_collides_with_glowstick(entity_t *entity)
+{
+    int glowsticks = entity_plop_glowsticks_count();
+
+    if (glowsticks == 0) {
+        return NULL;
+    }
+
+    Vector2D next = entity->position;
+    Vector2D velocity = entity->velocity;
+    vector2d_scale(velocity, velocity, entity->speed);
+    vector2d_add(next, next, velocity);
+
+
+    for (int i = 0; i < glowsticks; i++) {
+        Vector2D temp;
+        entity_t *glowstick = entity_plop_glowsticks_get(i);
+        vector2d_sub(temp, next, glowstick->position);
+
+        if (vector2d_magnitude(temp) < ENTITY_MIN_GLOWSTICK_RADIUS)
+            return glowstick;
+    }
+
+    return NULL;
+}
+
+void entity_bug_avoid_glowstick_radius(entity_t *entity)
+{
+    const Vector2D backup = entity->velocity;
+
+    if (!entity_bug_next_possition_collides_with_glowstick(entity)) {
+        return;
+    }
+
+    entity->velocity.x = 0;
+    entity->velocity.y = backup.y;
+
+    if (!entity_bug_next_possition_collides_with_glowstick(entity)) {
+        return;
+    }
+
+    entity->velocity.x = backup.x;
+    entity->velocity.y = 0;
+
+
+    entity_t *glowstick = entity_bug_next_possition_collides_with_glowstick(entity);
+    if (!glowstick) {
+        return;
+    }
+
+    // Find the vector that points to the entity from the glowstick and use that as the new velocity
+    vector2d_sub(entity->velocity, entity->position, glowstick->position);
+    vector2d_normalize(&entity->velocity);
+}
 
 entity_t *entity_bug_most_valuable_entity_find(entity_t *us)
 {
@@ -64,7 +120,7 @@ void entity_bug_touching(entity_t *entity, entity_t *them)
 
     if (them->id == player->id) {
         printf("Bug was damaged by player touch (%li -> %li)\n", entity->id, them->id);
-        them->health -= 1;
+        //them->health -= 1;
     }
 }
 
@@ -76,9 +132,12 @@ void entity_bug_update(entity_t *entity)
 {
     if (entity->health <= 0) {
         entity->speed = 0.0f;
-    } else {
-        entity_t *following = entity_bug_most_valuable_entity_find(entity);
-        vector2d_sub(entity->velocity, following->position, entity->position);
-        vector2d_normalize(&entity->velocity);
+        return;
     }
+
+    entity_t *following = entity_bug_most_valuable_entity_find(entity);
+    vector2d_sub(entity->velocity, following->position, entity->position);
+    vector2d_normalize(&entity->velocity);
+
+    entity_bug_avoid_glowstick_radius(entity);
 }
