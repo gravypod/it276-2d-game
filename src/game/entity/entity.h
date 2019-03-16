@@ -36,6 +36,8 @@ typedef enum {
     entity_type_plop,
 
     entity_type_egg,
+    entity_type_door,
+
 } entity_type_t;
 
 /**

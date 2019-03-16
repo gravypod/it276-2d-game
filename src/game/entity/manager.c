@@ -13,6 +13,7 @@
 #include <game/entity/definitions/throwing.h>
 #include <game/entity/definitions/plop.h>
 #include <game/entity/definitions/egg.h>
+#include <game/entity/definitions/door.h>
 
 struct
 {
@@ -61,7 +62,8 @@ const entity_initializer_t constructors[] = {
 
         entity_plop_init,
 
-        entity_egg_init
+        entity_egg_init,
+        entity_door_init,
 };
 
 
