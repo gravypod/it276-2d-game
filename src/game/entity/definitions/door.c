@@ -17,12 +17,13 @@ void entity_door_init(entity_t *entity)
 void entity_door_world_new(uint32_t world_id, Vector2D back_position, Vector2D forward_position)
 {
     if (world_id != 0) {
+        printf("Spawning backwards door\n");
         entity_t *backward = entity_manager_make(entity_type_door);
         backward->position = back_position;
-        backward->statuses = world_id;
+        backward->statuses = world_id - 1;
     }
 
-
+    printf("Spawning forwards door\n");
     entity_t *forward = entity_manager_make(entity_type_door);
     forward->position = forward_position;
     forward->statuses = world_id + 1;

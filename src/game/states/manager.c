@@ -5,7 +5,7 @@
 
 
 game_state playing = {
-        .save_file_name = "game.bin",
+        .playing = true,
         .num_initializers = 6,
         .initializers = {
                 entity_type_world,
@@ -22,7 +22,7 @@ game_state *game_states[] = {
         &playing
 };
 
-void game_state_persist_entities(char *file_name)
+void game_state_persist_entities()
 {
     save_em_t save;
     size_t i = 0;
@@ -35,39 +35,22 @@ void game_state_persist_entities(char *file_name)
     while (entity_manager_iterate_generator(&entity_id, true, &entity)) {
         printf("\tPersisting %d\n", entity->type);
         save_entity_t *save_entity = &save.entities[i++];
-
-        // Entity manager metadata
-        save_entity->allocated = true;
-        save_entity->type = entity->type;
-
-        save_entity->health = entity->health;
-        save_entity->statuses = entity->statuses;
-
-        save_entity->size = entity->size;
-        save_entity->sprite_frame = entity->sprite_frame;
-        save_entity->has_color = entity->has_color;
-        save_entity->color = entity->color;
-
-        save_entity->position = entity->position;
-        save_entity->roation = entity->roation;
-        save_entity->velocity = entity->velocity;
-        save_entity->speed = entity->speed;
-
+        save_em_entity_to_save_entity(entity, save_entity);
     }
 
-    save_em_dump(file_name, &save);
+    save_em_dump("entites-%d.bin", &save);
 }
 
 
-bool game_state_load_entities(char *file_name)
+bool game_state_load_entities()
 {
     save_em_t save;
-    if (!save_em_load(file_name, &save)) {
+    if (!save_em_load("entites-%d.bin", &save)) {
         return false;
     }
 
     for (size_t i = 0; i < MAX_NUM_ENTITIES; i++) {
-        const save_entity_t *saved = &save.entities[i];
+        save_entity_t *saved = &save.entities[i];
 
         if (!saved->allocated) {
             continue;
@@ -77,18 +60,7 @@ bool game_state_load_entities(char *file_name)
 
         entity_t *entity = entity_manager_make(saved->type);
 
-        // Reload entity contents
-        entity->type = saved->type;
-        entity->health = saved->health;
-        entity->statuses = saved->statuses;
-        entity->size = saved->size;
-        entity->sprite_frame = saved->sprite_frame;
-        entity->has_color = saved->has_color;
-        entity->color = saved->color;
-        entity->position = saved->position;
-        entity->roation = saved->roation;
-        entity->velocity = saved->velocity;
-        entity->speed = saved->speed;
+        save_em_save_entity_to_entity(saved, entity);
     }
 
     return true;
@@ -110,9 +82,9 @@ void game_state_manager_set(game_state_type type)
     game_state *next = game_states[type];
 
     // Save current state
-    if (current != NULL && current->save_file_name != NULL) {
+    if (current != NULL && current->playing) {
         if (game_state_should_save(current_type, type)) {
-            game_state_persist_entities(current->save_file_name);
+            game_state_persist_entities();
         }
     }
 
@@ -126,9 +98,9 @@ void game_state_manager_set(game_state_type type)
         return;
     }
 
-    if (next->save_file_name) {
+    if (next->playing) {
         printf("Loading all entities from file\n");
-        if (game_state_load_entities(next->save_file_name)) {
+        if (game_state_load_entities()) {
             printf("Loaded all entities from file\n");
             // loaded entities from file.
             return;

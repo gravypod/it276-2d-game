@@ -9,7 +9,7 @@ typedef enum  {
 } game_state_type;
 
 typedef struct {
-    char *save_file_name;
+    bool playing;
     size_t num_initializers;
     entity_type_t initializers[];
 } game_state;
