@@ -40,6 +40,15 @@ attack_t attacks[NUM_ATTACKS] = {
         }
 };
 
+
+bool entity_player_should_spawn_egg_chance()
+{
+    const int percent_change = 25;
+    const int out_of = 100;
+
+    return (rand() % out_of) > (out_of - percent_change);
+}
+
 size_t num_bits_on(uint32_t n)
 {
     size_t num = 0;
@@ -245,6 +254,11 @@ void entity_player_update_interactions(entity_t *entity)
         state.running = false;
     }
 
+
+    if (state.keys[SDL_SCANCODE_SPACE]) {
+        entity->statuses |= entity_player_status_stepedon_1;
+    }
+
     if (entity_player_controller_rb_depressed()) {
         entity_equiptment_selection_right();
     }
@@ -329,8 +343,14 @@ void entity_player_stepon_update(entity_t *entity)
             return;
     }
 
-    // TODO: Spawn egg when player reaches here.
-
+    if (entity_player_should_spawn_egg_chance()) {
+        // Make an egg in the player's position
+        entity_t *egg = entity_manager_make(entity_type_egg);
+        egg->position = player->position;
+        printf("Player: Tracking bug because of state change.\n");
+    } else {
+        printf("Player: Not tracking a bug.\n");
+    }
 }
 
 void entity_player_update(entity_t *entity)

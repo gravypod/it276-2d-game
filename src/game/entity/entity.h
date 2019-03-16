@@ -34,6 +34,8 @@ typedef enum {
     entity_type_pickup,
     entity_type_throwing,
     entity_type_plop,
+
+    entity_type_egg,
 } entity_type_t;
 
 /**
