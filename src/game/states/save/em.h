@@ -52,6 +52,8 @@ typedef struct
     save_entity_t entities[MAX_NUM_ENTITIES];
 } save_em_t;
 
+void save_em_save_entity_to_entity(save_entity_t *saved, entity_t *entity);
+void save_em_entity_to_save_entity(entity_t *entity, save_entity_t *save_entity);
 
 void save_em_dump(const char *file_name, const save_em_t *em);
 

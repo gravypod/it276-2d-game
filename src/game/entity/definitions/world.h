@@ -13,7 +13,13 @@
 #define WORLD_X (TILE_SIZE_X * TILES_X)
 #define WORLD_Y (TILE_SIZE_Y * TILES_Y)
 
+extern entity_t *world;
+
 extern Vector2D world_first_open_position, world_last_open_position;
+
+
+Vector2D entity_world_position_entrance();
+Vector2D entity_world_position_exit();
 
 bool entity_world_point_collides(Vector2D *point);
 

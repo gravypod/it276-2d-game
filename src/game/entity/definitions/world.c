@@ -6,10 +6,13 @@
 #include <game/entity/manager.h>
 #include <game/states/save/world.h>
 #include <zconf.h>
+#include <game/states/world.h>
 
 #define WORLD_MAX_BUGS 1
 
-#define WORLD_SAVE_FILE "world-0.bin"
+#define WORLD_SAVE_FILE "world-%d.bin"
+
+entity_t *world;
 
 Vector2D world_first_open_position, world_last_open_position;
 
@@ -19,6 +22,25 @@ Vector2D tile_size = {
 
 bool tiles[TILES_COUNT];
 Sprite *sprite = NULL;
+
+Vector2D entity_world_position_entrance()
+{
+    Vector2D enter = {
+            tile_size.x * world_first_open_position.x,
+            tile_size.y * world_first_open_position.y
+    };
+    return enter;
+}
+
+Vector2D entity_world_position_exit()
+{
+    Vector2D exit = {
+            tile_size.x * world_last_open_position.x,
+            tile_size.y * world_last_open_position.y
+    };
+    return exit;
+}
+
 
 bool entity_world_point_collides(Vector2D *point)
 {
@@ -242,14 +264,8 @@ void entity_world_pickups_spawn(const bool cave[TILES_COUNT], int desired_pickup
 
 void entity_world_doors_spawn(uint32_t world_id)
 {
-    const Vector2D backwards_position = {
-            tile_size.x * world_first_open_position.x,
-            tile_size.y * world_first_open_position.y
-    };
-    const Vector2D forwards_position = {
-            tile_size.x * world_last_open_position.x,
-            tile_size.y * world_last_open_position.y
-    };
+    const Vector2D backwards_position = entity_world_position_entrance();
+    const Vector2D forwards_position = entity_world_position_exit();
 
     entity_door_world_new(world_id, backwards_position, forwards_position);
 }
@@ -281,7 +297,7 @@ void entity_world_init(entity_t *entity) {
         entity_world_burrow(&world_first_open_position, &world_last_open_position, tiles, 0.4f);
         entity_world_bug_spawn(tiles, WORLD_MAX_BUGS);
         entity_world_pickups_spawn(tiles, 5);
-        entity_world_doors_spawn(entity->statuses);
+        entity_world_doors_spawn(states_world_id_get());
 
 
         memcpy(save.filled, tiles, sizeof(bool) * TILES_COUNT);
@@ -289,6 +305,9 @@ void entity_world_init(entity_t *entity) {
         save.first_open_position = world_first_open_position;
         save_world_dump(WORLD_SAVE_FILE, &save);
     }
+
+
+    world = entity;
 }
 
 void entity_world_free(entity_t *entity) {

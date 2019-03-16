@@ -8,6 +8,7 @@
 #include <game/entity/definitions/bug.h>
 #include <game/entity/definitions/world.h>
 #include <game/states/manager.h>
+#include <game/states/world.h>
 #include "game.h"
 #include "entity/manager.h"
 
@@ -72,6 +73,7 @@ void game_teardown()
 
 int main(int argc, char **argv)
 {
+    states_world_init();
     game_setup();
     {
         if (SDL_NumJoysticks() <= 0) {

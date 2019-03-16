@@ -10,6 +10,7 @@
 #include <game/entity/manager.h>
 #include <game/collision/raytrace.h>
 #include <game/graphics/animation.h>
+#include <game/states/world.h>
 
 #define SPRITE_HEIGHT 128
 #define SPRITE_WIDTH 128
@@ -115,6 +116,28 @@ void entity_player_init(entity_t *entity)
     player = entity;
 }
 
+
+
+bool entity_player_controller_interaction_depressed()
+{
+    static bool last = false;
+    bool now = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
+
+    if (now ^ last) {
+        if (last) {
+            last = false;
+            return false;
+        }
+
+        if (now) {
+            last = true;
+            return true;
+        }
+    } else {
+        return false;
+    }
+}
+
 void entity_player_touching(entity_t *entity, entity_t *them)
 {
     if (them->type == entity_type_bug) {
@@ -130,7 +153,10 @@ void entity_player_touching(entity_t *entity, entity_t *them)
     }
 
     if (them->type == entity_type_door) {
-        printf("Touching a door\n");
+        if (entity_player_controller_interaction_depressed()) {
+            printf("Setting world id: %d\n", them->statuses);
+            states_world_id_set(them->statuses);
+        }
     }
 }
 
