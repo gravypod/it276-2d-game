@@ -1,5 +1,6 @@
 #include "world.h"
 #include "player.h"
+#include "door.h"
 #include <game/game.h>
 #include <game/collision/bbox.h>
 #include <game/entity/manager.h>
@@ -18,7 +19,6 @@ Vector2D tile_size = {
 
 bool tiles[TILES_COUNT];
 Sprite *sprite = NULL;
-
 
 bool entity_world_point_collides(Vector2D *point)
 {
@@ -120,6 +120,20 @@ void entity_world_random_valid_point(Vector2D *point) {
     point->y = (rand() % (TILES_Y - 1)) + 1;
 }
 
+bool entity_world_spawning_in_tile_allowed(int i)
+{
+    int tile_x = ((int) (i % TILES_X));
+    int tile_y = ((int) (i / TILES_X));
+
+    if (tile_x == (int) world_first_open_position.x && tile_y == (int) world_first_open_position.y)
+        return false;
+
+    if (tile_x == (int) world_last_open_position.x && tile_y == (int) world_last_open_position.y)
+        return false;
+
+    return true;
+}
+
 bool entity_world_carve_point(bool cave[TILES_COUNT], Vector2D *point, size_t *num_empty) {
     if (point->x == 0 || point->y == 0)
         return false;
@@ -180,6 +194,10 @@ void entity_world_bug_spawn(const bool cave[TILES_COUNT], int desired_num_bugs)
             continue;
         }
 
+        if (!entity_world_spawning_in_tile_allowed(i)) {
+            continue;
+        }
+
         float chance = (rand() % 10) / 10.f;
 
         if (chance < 0.8f) { // 50% chance
@@ -203,6 +221,10 @@ void entity_world_pickups_spawn(const bool cave[TILES_COUNT], int desired_pickup
             continue;
         }
 
+        if (!entity_world_spawning_in_tile_allowed(i)) {
+            continue;
+        }
+
         float chance = (rand() % 10) / 10.f;
 
         if (chance < 0.8f) { // 50% chance
@@ -216,6 +238,20 @@ void entity_world_pickups_spawn(const bool cave[TILES_COUNT], int desired_pickup
         bug->position.x = ((int) (i % TILES_X)) * TILE_SIZE_X;
         bug->position.y = ((int) (i / TILES_X)) * TILE_SIZE_Y;
     }
+}
+
+void entity_world_doors_spawn(uint32_t world_id)
+{
+    const Vector2D backwards_position = {
+            tile_size.x * world_first_open_position.x,
+            tile_size.y * world_first_open_position.y
+    };
+    const Vector2D forwards_position = {
+            tile_size.x * world_last_open_position.x,
+            tile_size.y * world_last_open_position.y
+    };
+
+    entity_door_world_new(world_id, backwards_position, forwards_position);
 }
 
 void entity_world_init(entity_t *entity) {
@@ -245,6 +281,7 @@ void entity_world_init(entity_t *entity) {
         entity_world_burrow(&world_first_open_position, &world_last_open_position, tiles, 0.4f);
         entity_world_bug_spawn(tiles, WORLD_MAX_BUGS);
         entity_world_pickups_spawn(tiles, 5);
+        entity_world_doors_spawn(entity->statuses);
 
 
         memcpy(save.filled, tiles, sizeof(bool) * TILES_COUNT);

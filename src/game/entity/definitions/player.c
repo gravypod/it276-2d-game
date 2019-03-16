@@ -128,6 +128,10 @@ void entity_player_touching(entity_t *entity, entity_t *them)
             }
         }
     }
+
+    if (them->type == entity_type_door) {
+        printf("Touching a door\n");
+    }
 }
 
 void entity_player_free(entity_t *entity)
