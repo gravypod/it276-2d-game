@@ -40,6 +40,16 @@ attack_t attacks[NUM_ATTACKS] = {
         }
 };
 
+size_t num_bits_on(uint32_t n)
+{
+    size_t num = 0;
+    while (n) {
+        num += n & 1;
+        n >>= 1;
+    }
+    return num;
+}
+
 
 entity_t *entity_player_attack(float distance, const int steps) {
     entity_t *hit;
@@ -66,7 +76,7 @@ void entity_player_init(entity_t *entity)
     entity->free = entity_player_free;
     entity->update = entity_player_update;
     entity->draw = entity_player_draw;
-    entity->touching_wall = entity_player_touching_wall;
+    entity->touching = entity_player_touching;
     //entity->sprite = gf2d_sprite_load_all("images/ed210_top.png", SPRITE_WIDTH, SPRITE_HEIGHT, 16);
     entity->position.x = 10;
     entity->position.y = 10;
@@ -96,8 +106,19 @@ void entity_player_init(entity_t *entity)
     player = entity;
 }
 
-void entity_player_touching_wall(entity_t *entity, entity_touch_wall_t wall)
+void entity_player_touching(entity_t *entity, entity_t *them)
 {
+    if (them->type == entity_type_bug) {
+        if (them->health > 0) {
+            // Damage bug
+            them->health -= 1;
+
+            // If that damage killed the bug
+            if (them->health <= 0) {
+                entity->statuses |= entity_player_status_stepedon_1;
+            }
+        }
+    }
 }
 
 void entity_player_free(entity_t *entity)
@@ -251,6 +272,67 @@ void entity_player_update_powerups(entity_t *entity)
     }
 }
 
+
+void entity_player_stepon_update(entity_t *entity)
+{
+
+#define NUM_TICKS_TO_TRANISITION_STEPON 1000
+
+    static int ticks_since_step_on = 0;
+    const uint32_t step_on_bits = entity_player_status_stepedon_1 | entity_player_status_stepedon_2 | entity_player_status_stepedon_3;
+
+    const uint32_t shared_step_on_bits = entity->statuses & step_on_bits;
+
+    // If the player hasn't steped on anything, ignore
+    if (shared_step_on_bits == 0) {
+        ticks_since_step_on = 0;
+        return;
+    }
+
+    // More than one stepon state was set.
+    // Force back to stepon 1
+    if (num_bits_on(shared_step_on_bits) > 1) {
+        entity->statuses |= (entity->statuses & ~step_on_bits) | entity_player_status_stepedon_1;
+        return;
+    }
+
+    // The player has stepped on a bug but enough time hasn't passed to transition states yet
+    if (ticks_since_step_on < NUM_TICKS_TO_TRANISITION_STEPON) {
+        ticks_since_step_on += 1;
+        return;
+    }
+
+    ticks_since_step_on = 0;
+
+    // Update state machine
+    switch (shared_step_on_bits) {
+        case entity_player_status_stepedon_1:
+            // Transition states 1->2
+            entity->statuses &= ~entity_player_status_stepedon_1;
+            entity->statuses |= entity_player_status_stepedon_2;
+            printf("Player Stepped On 1->2\n");
+            break;
+        case entity_player_status_stepedon_2:
+            // Transition states 2->3
+            entity->statuses &= ~entity_player_status_stepedon_2;
+            entity->statuses |= entity_player_status_stepedon_3;
+            printf("Player Stepped On 2->3\n");
+            break;
+        case entity_player_status_stepedon_3:
+            entity->statuses &= ~entity_player_status_stepedon_3;
+            printf("Player Stepped On 3->nothing\n");
+            break;
+        default:
+            printf("Player Stepped On Error. Shouldn't be able to get into state machine update with no initial bit\n");
+            // Recover from magic error. Shouldn't ever reach this case
+            entity->statuses &= ~step_on_bits;
+            return;
+    }
+
+    // TODO: Spawn egg when player reaches here.
+
+}
+
 void entity_player_update(entity_t *entity)
 {
     entity->statuses |= entity_player_status_superglue | entity_player_status_bagofchips | entity_player_status_glowstick;
@@ -259,6 +341,7 @@ void entity_player_update(entity_t *entity)
     entity->velocity = entity_player_controller_walk_direction();
     entity->roation = entity_player_controller_angle();
     entity_player_update_interactions(entity);
+    entity_player_stepon_update(entity);
 
     if (entity->health <= 0) {
         entity_manager_release(entity);
