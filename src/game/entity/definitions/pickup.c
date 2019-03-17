@@ -12,7 +12,8 @@ entity_pickup_type entity_pickup_random_type() {
             entity_pickup_leftovercoffee,
             entity_pickup_wettowel,
             entity_pickup_brokenglass,*/
-            entity_pickup_fire,
+            //entity_pickup_fire,
+            entity_pickup_chest,
     };
     int i = rand() % ((sizeof(types) / sizeof(entity_pickup_type)));
     return types[i];
@@ -47,6 +48,9 @@ void entity_pickup_init(entity_t *entity) {
             break;
         case entity_pickup_fire:
             entity->sprite = gf2d_sprite_load_image(KENNY_NL_IMAGE(027));
+            break;
+        case entity_pickup_chest:
+            entity->sprite = gf2d_sprite_load_image(KENNY_NL_IMAGE(036));
             break;
         default:
             slog("Bad pickup status selected.");
