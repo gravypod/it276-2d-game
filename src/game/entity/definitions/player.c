@@ -3,6 +3,7 @@
 #include "bug.h"
 #include "world.h"
 #include "equiptment.h"
+#include "pickup.h"
 
 #include <SDL2/SDL.h>
 #include <game/game.h>
@@ -152,10 +153,32 @@ void entity_player_touching(entity_t *entity, entity_t *them)
         }
     }
 
+    bool interaction_depressed = entity_player_controller_interaction_depressed();
+
     if (them->type == entity_type_door) {
-        if (entity_player_controller_interaction_depressed()) {
+        if (interaction_depressed) {
             printf("Setting world id: %d\n", them->statuses);
             states_world_id_set(them->statuses);
+        }
+    }
+
+    if (them->type == entity_type_pickup && them->statuses == entity_pickup_chest) {
+        const bool has_superglue = (entity->statuses & entity_player_status_superglue) != 0;
+        const bool has_bagofchips = (entity->statuses & entity_player_status_bagofchips) != 0;
+        const bool has_glowstick = (entity->statuses & entity_player_status_glowstick) != 0;
+
+        if (!(has_superglue && has_bagofchips && has_glowstick) && interaction_depressed) {
+            printf("Opening a chest\n");
+
+            if (!has_superglue) {
+                entity->statuses |= entity_player_status_superglue;
+            } else if (!has_bagofchips) {
+                entity->statuses |= entity_player_status_bagofchips;
+            } else {
+                entity->statuses |= entity_player_status_glowstick;
+            }
+
+            entity_manager_release(them);
         }
     }
 }
@@ -385,8 +408,6 @@ void entity_player_stepon_update(entity_t *entity)
 
 void entity_player_update(entity_t *entity)
 {
-    entity->statuses |= entity_player_status_superglue | entity_player_status_bagofchips | entity_player_status_glowstick;
-
     entity_player_update_powerups(entity);
     entity->velocity = entity_player_controller_walk_direction();
     entity->roation = entity_player_controller_angle();
@@ -426,6 +447,12 @@ void entity_player_throw()
         return;
     }
 
+    uint32_t player_status = entity_equiptment_slot_type(slot);
+
+    if (!(player->statuses & player_status)) {
+        return;
+    }
+
     Vector2D direction = vector2d_unit_vector_from_angle((player->roation - 90) * DEG2RAD);
     Vector2D position;
     vector2d_scale(position, direction, 128);
@@ -435,7 +462,10 @@ void entity_player_throw()
     thrown->position = position;
     thrown->velocity = direction;
     thrown->sprite = entity_equiptment_slot_sprite(slot);
-    thrown->statuses = entity_equiptment_slot_type(slot);
+    thrown->statuses = player_status;
+
+    // Remove from inventory
+    player->statuses &= ~player_status;
 
     printf("Player is throwing\n");
 }
