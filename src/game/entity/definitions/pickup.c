@@ -1,16 +1,18 @@
 #include <simple_logger.h>
 #include <game/entity/manager.h>
+#include <game/kennynl.h>
 #include "pickup.h"
 #include "player.h"
 
 entity_pickup_type entity_pickup_random_type() {
     entity_pickup_type types[] = {
-            entity_pickup_glowstick,
+            /*entity_pickup_glowstick,
             entity_pickup_superglue,
             entity_pickup_bagofchips,
-            //entity_pickup_leftovercoffee,
-            //entity_pickup_wettowel,
-            //entity_pickup_brokenglass,
+            entity_pickup_leftovercoffee,
+            entity_pickup_wettowel,
+            entity_pickup_brokenglass,*/
+            entity_pickup_fire,
     };
     int i = rand() % ((sizeof(types) / sizeof(entity_pickup_type)));
     return types[i];
@@ -26,22 +28,25 @@ void entity_pickup_init(entity_t *entity) {
 
     switch (entity->statuses) {
         case entity_pickup_glowstick:
-            entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_024.png");
+            entity->sprite = gf2d_sprite_load_image(KENNY_NL_IMAGE(024));
             break;
         case entity_pickup_superglue:
-            entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_103.png");
+            entity->sprite = gf2d_sprite_load_image(KENNY_NL_IMAGE(103));
             break;
         case entity_pickup_bagofchips:
-            entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_078.png");
+            entity->sprite = gf2d_sprite_load_image(KENNY_NL_IMAGE(078));
             break;
         case entity_pickup_leftovercoffee:
-            entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_003.png");
+            entity->sprite = gf2d_sprite_load_image(KENNY_NL_IMAGE(003));
             break;
         case entity_pickup_wettowel:
-            entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_031.png");
+            entity->sprite = gf2d_sprite_load_image(KENNY_NL_IMAGE(031));
             break;
         case entity_pickup_brokenglass:
-            entity->sprite = gf2d_sprite_load_image("images/kenny-nl/generic-items/genericItem_color_044.png");
+            entity->sprite = gf2d_sprite_load_image(KENNY_NL_IMAGE(044));
+            break;
+        case entity_pickup_fire:
+            entity->sprite = gf2d_sprite_load_image(KENNY_NL_IMAGE(027));
             break;
         default:
             slog("Bad pickup status selected.");
@@ -60,7 +65,15 @@ void entity_pickup_touching(entity_t *entity, entity_t *them) {
 
     bool release = true;
 
-    if (entity->statuses == entity_pickup_wettowel) {
+    if (them == player && entity->statuses == entity_pickup_fire) {
+        if (them->health > 0) {
+            them->health -= 1;
+
+            if (them->health < 0)
+                them->health = 0;
+        }
+        return;
+    } else if (entity->statuses == entity_pickup_wettowel) {
         long increment = PLAYER_MAX_HEALTH / 10;
 
         if (them->health + increment > PLAYER_MAX_HEALTH) {
