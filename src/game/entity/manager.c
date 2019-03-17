@@ -171,13 +171,52 @@ void entity_manager_for_each(entity_consumer_t consumer, bool only_allocated)
 
 void entity_manager_update()
 {
-    entity_manager_for_each(entity_update, true);
-    //entity_manager_collision();
+    entity_manager_for_each((entity_consumer_t) entity_update, true);
 }
 
 void entity_manager_draw()
 {
-    entity_manager_for_each((entity_consumer_t) entity_draw, true);
+
+#define EMU_DRAW_SPECIFIC(u) \
+    do { \
+        size_t id = 0; entity_t *entity = NULL; \
+        while (entity_manager_iterate_generator(&id, true, &entity)) \
+            if (u) entity_draw(entity); \
+    } while (0)
+
+
+    // Background
+    EMU_DRAW_SPECIFIC(entity->type == entity_type_background);
+
+    // world
+    entity_draw(world);
+
+    // World-related tiles
+    EMU_DRAW_SPECIFIC(entity->type == entity_type_door);
+
+    // Items
+    EMU_DRAW_SPECIFIC(
+            entity->type == entity_type_pickup ||
+            entity->type == entity_type_plop
+    );
+
+    // Bugs/Enemies/Projectiles
+    EMU_DRAW_SPECIFIC(
+            entity->type == entity_type_egg ||
+            entity->type == entity_type_bug ||
+            entity->type == entity_type_throwing
+    );
+
+    // Player
+    entity_draw(player);
+
+    // UI
+    EMU_DRAW_SPECIFIC(
+            entity->type == entity_type_cursor ||
+            entity->type == entity_type_youdied ||
+            entity->type == entity_type_healthbar ||
+            entity->type == entity_type_equiptment
+    );
 }
 
 void entity_manager_free()
