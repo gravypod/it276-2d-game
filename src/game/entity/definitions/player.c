@@ -458,11 +458,28 @@ void entity_player_fight()
 
     entity_t *hit = entity_player_attack(attack.distance, attack.steps);
 
-    if (hit) {
+    if (hit && hit->type == entity_type_bug && hit->health > 0) {
+
         hit->health -= attack.damage;
 
         if (hit->health <= 0) {
             hit->health = 0;
+
+            Vector4D color = {0,0,0,255};
+
+            if (player->statuses & entity_player_status_weapon_4) {
+                color.x = 255;
+                hit->has_color = true;
+                hit->color = color;
+            } else if (player->statuses & entity_player_status_weapon_3) {
+                color.y = 255;
+                hit->has_color = true;
+                hit->color = color;
+            } else if (player->statuses & entity_player_status_weapon_2) {
+                color.z = 255;
+                hit->has_color = true;
+                hit->color = color;
+            }
 
             // After 1 kill, get weapon 2. After 1 more kill get weapon 3.
             if (!(player->statuses & entity_player_status_weapon_2)) {
