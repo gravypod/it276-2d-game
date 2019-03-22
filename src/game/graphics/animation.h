@@ -37,6 +37,10 @@ extern animation_t player_feet_idle;
 
 extern animation_t player_feet_walk;
 
+extern animation_t player_body_knife_idle, player_body_knife_meleeattack, player_body_knife_move;
+extern animation_t player_body_handgun_idle, player_body_handgun_shoot, player_body_handgun_move;
+extern animation_t player_body_rifle_idle, player_body_rifle_shoot, player_body_rifle_move;
+
 void animation_render(entity_t *entity, const animation_t *animation, animation_state_t *previous, void (*action)());
 
 #endif

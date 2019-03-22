@@ -26,9 +26,10 @@ entity_t *player = NULL;
 SDL_GameController *controller = NULL;
 
 
-#define NUM_ATTACKS 1
+#define NUM_ATTACKS 4
 
 typedef struct {
+    uint32_t type;
     int steps;
     float distance;
     long damage;
@@ -36,10 +37,29 @@ typedef struct {
 
 attack_t attacks[NUM_ATTACKS] = {
         {
+            .type = 0,
             .steps = 30,
             .distance = 120.0,
             .damage = 40
-        }
+        },
+        {
+                .type = entity_player_status_weapon_2,
+                .steps = 30,
+                .distance = 120.0,
+                .damage = 40
+        },
+        {
+                .type = entity_player_status_weapon_3,
+                .steps = 50,
+                .distance = 600.0,
+                .damage = 100
+        },
+        {
+                .type = entity_player_status_weapon_4,
+                .steps = 70,
+                .distance = 1024.0,
+                .damage = 100
+        },
 };
 
 
@@ -428,12 +448,32 @@ void entity_player_update(entity_t *entity)
 
 void entity_player_fight()
 {
-    const int current_attack = 0;
-    const attack_t attack = attacks[current_attack];
+    attack_t attack = attacks[0];
+
+    for (int i = 0; i < NUM_ATTACKS; i++) {
+        if (player->statuses & attacks[i].type) {
+            attack = attacks[i];
+        }
+    }
+
     entity_t *hit = entity_player_attack(attack.distance, attack.steps);
 
     if (hit) {
         hit->health -= attack.damage;
+
+        if (hit->health <= 0) {
+            hit->health = 0;
+
+            // After 1 kill, get weapon 2. After 1 more kill get weapon 3.
+            if (!(player->statuses & entity_player_status_weapon_2)) {
+                player->statuses |= entity_player_status_weapon_2;
+            } else if (!(player->statuses & entity_player_status_weapon_3)) {
+                player->statuses |= entity_player_status_weapon_3;
+            } else if (!(player->statuses & entity_player_status_weapon_4)) {
+                player->statuses |= entity_player_status_weapon_4;
+            }
+        }
+
     }
 
     printf("Player is fighting\n");
@@ -487,9 +527,28 @@ void entity_player_draw(entity_t *entity)
 
     // Animate torso
     static animation_state_t torso = {0};
-    static const animation_t *torso_punch_animation = &player_body_punch_walk;
-    static const animation_t *torso_walking_animation = &player_body_flashlight_walk;
-    static const animation_t *torso_idle_animation = &player_body_flashlight_idle;
+    static animation_t *torso_attack_animation = &player_body_punch_walk;
+    static animation_t *torso_walking_animation = &player_body_flashlight_walk;
+    static animation_t *torso_idle_animation = &player_body_flashlight_idle;
+
+    // Chose the right animation set for the player
+    if (player->statuses & entity_player_status_weapon_4) {
+        torso_attack_animation = &player_body_rifle_shoot;
+        torso_walking_animation = &player_body_rifle_move;
+        torso_idle_animation = &player_body_rifle_idle;
+    } else if (player->statuses & entity_player_status_weapon_3) {
+        torso_attack_animation = &player_body_handgun_shoot;
+        torso_walking_animation = &player_body_handgun_move;
+        torso_idle_animation = &player_body_handgun_idle;
+    } else if (player->statuses & entity_player_status_weapon_2) {
+        torso_attack_animation = &player_body_knife_meleeattack;
+        torso_walking_animation = &player_body_knife_move;
+        torso_idle_animation = &player_body_knife_idle;
+    } else {
+        torso_attack_animation = &player_body_punch_walk;
+        torso_walking_animation = &player_body_flashlight_walk;
+        torso_idle_animation = &player_body_flashlight_idle;
+    }
 
     {
         const animation_t *current = moving ? torso_walking_animation : torso_idle_animation;
@@ -497,10 +556,10 @@ void entity_player_draw(entity_t *entity)
 
         if (entity_player_controller_throw_depressed()) {
             action = entity_player_throw;
-            current = torso_punch_animation;
+            current = torso_attack_animation;
         } else if (entity_player_controller_attack_depressed()) {
+            current = torso_attack_animation;
             action = entity_player_fight;
-            current = torso_punch_animation;
         }
 
         animation_render(entity, current, &torso, action);
