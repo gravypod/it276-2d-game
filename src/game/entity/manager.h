@@ -7,10 +7,10 @@
 
 #define MAX_NUM_ENTITIES 128
 
-
-
+/**
+ * Constructors for entities
+ */
 extern const entity_initializer_t constructors[];
-
 
 /**
  * Wrap entity_manager_make with casts for simplicity
@@ -42,12 +42,16 @@ entity_t *entity_manager_take(entity_initializer_t initializer);
  */
 bool entity_manager_iterate_generator(size_t *last_entity_index, bool only_allocated, entity_t **entity);
 
+/**
+ * Release an entity back to the entity manager
+ * @param entity  - Entity object
+ */
 void entity_manager_release(entity_t *entity);
 
 /**
  * Run a function against every allocated entity
- * @param consumer
- * @param only_allocated
+ * @param consumer - Consumer of entity
+ * @param only_allocated - Filter to only allocated entities
  */
 void entity_manager_for_each(entity_consumer_t consumer, bool only_allocated);
 
@@ -56,8 +60,14 @@ void entity_manager_for_each(entity_consumer_t consumer, bool only_allocated);
  */
 void entity_manager_update();
 
+/**
+ * Draw all entities
+ */
 void entity_manager_draw();
 
+/**
+ * Free all entities
+ */
 void entity_manager_free();
 
 #endif

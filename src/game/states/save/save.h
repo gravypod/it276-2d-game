@@ -6,9 +6,12 @@
 
 #define SAVE_FOLDER "./saves/"
 
-
-static inline void save_folder_name(const char *file_name, char save_file_name[512])
-{
+/**
+ * Find the name of a file in the saves folder
+ * @param file_name - The file name we want to save
+ * @param save_file_name - The destination of the completed game
+ */
+static inline void save_folder_name(const char *file_name, char save_file_name[512]) {
 
     // Make sure save folder exists
     struct stat st = {0};

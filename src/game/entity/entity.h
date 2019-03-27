@@ -120,34 +120,12 @@ typedef void (*entity_initializer_t)(entity_t *);
  * Consume and process an entity
  */
 typedef void (*entity_consumer_t)(entity_t *);
-static inline void entity_touch_wall_to_string(entity_touch_wall_t wall, char sides[5])
-{
-    // Reset the string's data
-    for (size_t i = 0; i < 5; i++) {
-        sides[i] = 0;
-    }
 
-    int x = 0;
-
-    if (wall & entity_touch_wall_top) {
-        sides[x++] = 'T';
-    }
-
-    if (wall & entity_touch_wall_bottom) {
-        sides[x++] = 'B';
-    }
-
-    if (wall & entity_touch_wall_left) {
-        sides[x++] = 'L';
-    }
-
-    if (wall & entity_touch_wall_right) {
-        sides[x++] = 'R';
-    }
-
-    sides[x] = 0;
-}
-
+/**
+ * Entity position top left coordinate
+ * @param e - Entity structure
+ * @return Vector that points to the top left of the entity
+ */
 Vector2D entity_position_top_left(entity_t *e);
 
 /**
@@ -156,15 +134,55 @@ Vector2D entity_position_top_left(entity_t *e);
  * @param e - Entity to blank out
  */
 void entity_clear(entity_t *e);
+
+/**
+ * Post-init handler for creating an entity. Setup different entity fields that are required
+ * @param e - Entity
+ */
 void entity_post_init(entity_t *e);
 
+/**
+ * Free an entity's resources
+ * @param entity - Entity
+ */
 void entity_free(entity_t *entity);
+
+/**
+ * Update an entity
+ * @param entity - Entity
+ */
 void entity_update(entity_t *entity);
+
+/**
+ * Entity touching
+ * @param entity - Entity A
+ * @param other - Entity A
+ */
 void entity_touching(entity_t *entity, entity_t *other);
+
+/**
+ * Draw an entity
+ * @param entity - Entity
+ */
 void entity_draw(entity_t *entity);
 
-void draw_centered_around_player(Sprite *sprite, Vector2D entity_size, Vector2D entity_position, Vector4D *entity_color,
-                                 Uint32 frame, double rotation);
+/**
+ * Draw an image centered around a player
+ * @param sprite - Sprite to draw
+ * @param entity_size - Size of the entity
+ * @param entity_position - Position of the entity's center
+ * @param entity_color - Color shift to apply
+ * @param frame - Frame to draw
+ * @param rotation - Rotation to apply to image
+ */
+void draw_centered_around_player(
+        Sprite *sprite,
+        Vector2D entity_size,
+        Vector2D entity_position,
+        Vector4D *entity_color,
+        Uint32 frame,
+        double rotation
+);
 
 #endif
 
