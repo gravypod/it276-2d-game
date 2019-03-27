@@ -24,6 +24,10 @@ typedef enum {
     entity_player_status_stepedon_2 = 64,
     entity_player_status_stepedon_3 = 128,
 
+    entity_player_status_weapon_2   = 256,
+    entity_player_status_weapon_3   = 512,
+    entity_player_status_weapon_4   = 1024,
+
 } entity_player_status_t;
 
 void entity_player_init(entity_t *entity);
