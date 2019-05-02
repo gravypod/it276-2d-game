@@ -56,7 +56,7 @@ bool game_state_load_entities()
             continue;
         }
 
-        printf("\tMaking %d\n", saved->type);
+        printf("\tMaking %d - %d @ (%f, %f)\n", saved->type, saved->statuses, saved->position.x, saved->position.y);
 
         entity_t *entity = entity_manager_make(saved->type);
 
