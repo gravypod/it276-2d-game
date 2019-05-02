@@ -2,11 +2,14 @@
 #include <stddef.h>
 #include <SDL_mixer.h>
 #include <simple_logger.h>
+#include <game/entity/entity.h>
+#include <game/entity/manager.h>
 
 #define ORCHESTRA_INSTRUMENTS_TOTAL (ORCHESTRA_ERR + 1)
 char *instrument_sound_files[ORCHESTRA_INSTRUMENTS_TOTAL] = {
         "sounds/coconuts-silver_lights.mp3", "sounds/health-we_are_water.mp3", // BGM
         "sounds/footsteps.wav",
+        "sounds/bug-footsteps.wav",
         NULL
 };
 
@@ -19,9 +22,9 @@ orchestra_instruments music_instruments[ORCHESTRA_MUSICS_NUM] = {
         ORCHESTRA_BGM_COCONUTS_SILVER_LIGHTS, ORCHESTRA_BGM_HEALTH_WE_ARE_WATER
 };
 
-#define ORCHESTRA_SOUND_EFFECTS_NUM 1
+#define ORCHESTRA_SOUND_EFFECTS_NUM 2
 orchestra_instruments sound_effect_instruments[ORCHESTRA_SOUND_EFFECTS_NUM] = {
-        ORCHESTRA_FOOTSTEPS
+        ORCHESTRA_FOOTSTEPS, ORCHESTRA_BUG_FOOTSTEPS
 };
 
 Mix_Music *musics[ORCHESTRA_MUSICS_NUM];
@@ -31,8 +34,9 @@ Mix_Chunk *sound_effects[ORCHESTRA_SOUND_EFFECTS_NUM];
 Mix_Chunk *chunk_for_instrument(orchestra_instruments instrument)
 {
     for (int i = 0; i < ORCHESTRA_SOUND_EFFECTS_NUM; i++) {
-        if (sound_effect_instruments[i] == instrument)
+        if (sound_effect_instruments[i] == instrument) {
             return sound_effects[i];
+        }
     }
     return NULL;
 }
@@ -66,6 +70,10 @@ void orchestra_sound_effects_load()
 {
     for (int i = 0; i < ORCHESTRA_SOUND_EFFECTS_NUM; i++) {
         sound_effects[i] = Mix_LoadWAV(instrument_sound_files[sound_effect_instruments[i]]);
+
+        if (i == ORCHESTRA_BUG_FOOTSTEPS) {
+            Mix_VolumeChunk(sound_effects[i], 128);
+        }
         if (!sound_effects[i]) {
             slog("Failed to load %s", instrument_sound_files[sound_effect_instruments[i]]);
         }
@@ -123,7 +131,7 @@ void orchestra_sound_effect_looper(int channel)
 {
     orchestra_instruments instrument = channel_get_instrument(channel);
 
-    if (instrument  == ORCHESTRA_ERR || orchestra_instrument_music(instrument)) {
+    if (instrument == ORCHESTRA_ERR || orchestra_instrument_music(instrument)) {
         return;
     }
 
@@ -131,7 +139,7 @@ void orchestra_sound_effect_looper(int channel)
 
     if (playing[instrument]) {
         if ((instruments_playing_on_channels[instrument] = Mix_PlayChannel(channel, chunk_for_instrument(instrument), 1)) == -1) {
-            printf("Mix_PlayChannel: %s\n",Mix_GetError());
+            printf("Mix_PlayChannel: %s\n", Mix_GetError());
         }
     } else {
         slog("Stopping sound effect");
@@ -140,8 +148,8 @@ void orchestra_sound_effect_looper(int channel)
 
 bool orchestra_init()
 {
-    if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, ORCHESTRA_INSTRUMENTS_TOTAL, 4096) == -1) {
-        slog("Failed to Mix_OpenAudio");
+    if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 4, 4096) == -1) {
+        printf("Mix_OpenAudio: %s\n", Mix_GetError());
         return false;
     }
     orchestra_music_load();
@@ -149,7 +157,7 @@ bool orchestra_init()
 
     // Background music is happening
     Mix_HookMusicFinished(orchestra_music_switch_songs);
-    //orchestra_music_switch_songs();
+    orchestra_music_switch_songs();
 
     Mix_ChannelFinished(orchestra_sound_effect_looper);
 
@@ -159,16 +167,42 @@ bool orchestra_init()
     memset(playing, false, sizeof(bool) * ORCHESTRA_INSTRUMENTS_TOTAL);
 }
 
+void orchestra_update_bug_scuttle()
+{
+    bool any_bug_alive_and_moving = false;
+
+    entity_t *e = NULL;
+    size_t ei = 0;
+    while (entity_manager_iterate_generator(&ei, true, &e)) {
+        if (e->type != entity_type_bug) {
+            continue;
+        }
+
+        if (e->health > 0 && e->speed > 0) {
+            any_bug_alive_and_moving = true;
+            break;
+        }
+    }
+
+    orchestra_instrument_set(ORCHESTRA_BUG_FOOTSTEPS, any_bug_alive_and_moving);
+
+}
+
 void orchestra_update()
 {
+    orchestra_update_bug_scuttle();
+
     for (int i = 0; i < ORCHESTRA_INSTRUMENTS_TOTAL; i++) {
+        if (orchestra_instrument_music(i))
+            continue;
+
         if (playing[i] && !continue_playing[i]) {
             Mix_HaltChannel(instrament_get_channel(i));
         }
 
         if (continue_playing[i] && !playing[i]) {
             if ((instruments_playing_on_channels[i] = Mix_PlayChannel(i, chunk_for_instrument(i), 1)) == -1) {
-                printf("Mix_PlayChannel: %s\n",Mix_GetError());
+                printf("Mix_PlayChannel: %s\n", Mix_GetError());
             } else {
                 playing[i] = true;
                 slog("Starting sound effect %d", instruments_playing_on_channels[i]);

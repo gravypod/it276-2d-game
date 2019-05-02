@@ -10,6 +10,15 @@ find_package(SDL2_image REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 find_package(SDL2_mixer REQUIRED)
 
+add_custom_command(
+    OUTPUT ${CMAKE_SOURCE_DIR}/sounds/bug-footsteps.wav
+    COMMAND wget http://soundbible.com/grab.php?id=2113&type=wav -O bug-footsteps.wav
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/sounds/"
+    COMMENT "Downloading Bug Walking Sounds"
+    VERBATIM
+)
+
+
 
 add_custom_command(
         OUTPUT ${CMAKE_SOURCE_DIR}/sounds/footsteps.wav
@@ -42,6 +51,7 @@ add_custom_target(
         ${CMAKE_SOURCE_DIR}/sounds/health-we_are_water.mp3
         ${CMAKE_SOURCE_DIR}/sounds/coconuts-silver_lights.mp3
         ${CMAKE_SOURCE_DIR}/sounds/footsteps.wav
+        ${CMAKE_SOURCE_DIR}/sounds/bug-footsteps.wav
 )
 
 add_executable(
