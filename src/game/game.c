@@ -9,6 +9,7 @@
 #include <game/entity/definitions/world.h>
 #include <game/states/manager.h>
 #include <game/states/world.h>
+#include <game/sound/orchestra.h>
 #include "game.h"
 #include "entity/manager.h"
 
@@ -44,7 +45,7 @@ void game_update()
     SDL_GetMouseState(&state.mouse_x, &state.mouse_y);
 
     entity_manager_update();
-
+    orchestra_update();
 }
 
 void game_draw()
@@ -62,13 +63,16 @@ void game_setup()
     entity_manager_init();
     game_graphics_init();
     SDL_ShowCursor(SDL_DISABLE);
+    orchestra_init();
 }
 
 void game_teardown()
 {
+    orchestra_destroy();
     gf2d_sprite_cleanup();
     gf2d_graphics_cleanup();
     close_logger();
+
 }
 
 int main(int argc, char **argv)
