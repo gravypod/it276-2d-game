@@ -62,8 +62,9 @@ void game_setup()
     init_logger("gf2d.log");
     entity_manager_init();
     game_graphics_init();
-    SDL_ShowCursor(SDL_DISABLE);
     orchestra_init();
+    SDL_ShowCursor(SDL_DISABLE);
+
 }
 
 void game_teardown()

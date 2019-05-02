@@ -15,7 +15,8 @@ char *instrument_sound_files[ORCHESTRA_INSTRUMENTS_TOTAL] = {
 
 int instruments_playing_on_channels[ORCHESTRA_INSTRUMENTS_TOTAL];
 
-bool continue_playing[ORCHESTRA_INSTRUMENTS_TOTAL], playing[ORCHESTRA_INSTRUMENTS_TOTAL];
+bool continue_playing[ORCHESTRA_INSTRUMENTS_TOTAL + 1];
+bool playing[ORCHESTRA_INSTRUMENTS_TOTAL + 1];
 
 #define ORCHESTRA_MUSICS_NUM 2
 orchestra_instruments music_instruments[ORCHESTRA_MUSICS_NUM] = {
@@ -163,8 +164,9 @@ bool orchestra_init()
 
     Mix_Volume(-1, 64);
 
-    memset(continue_playing, false, sizeof(bool) * ORCHESTRA_INSTRUMENTS_TOTAL);
-    memset(playing, false, sizeof(bool) * ORCHESTRA_INSTRUMENTS_TOTAL);
+/*    for (int i = 0; i < ORCHESTRA_INSTRUMENTS_TOTAL - 1; i++) {
+        playing[i] = continue_playing[i] = false;
+    }*/
 }
 
 void orchestra_update_bug_scuttle()
