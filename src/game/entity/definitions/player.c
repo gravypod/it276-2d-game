@@ -12,6 +12,7 @@
 #include <game/collision/raytrace.h>
 #include <game/graphics/animation.h>
 #include <game/states/world.h>
+#include <game/sound/orchestra.h>
 
 #define SPRITE_HEIGHT 128
 #define SPRITE_WIDTH 128
@@ -442,6 +443,8 @@ void entity_player_update(entity_t *entity)
     // Remove slowdown effect after applying update.
     // This will be reapplied if the player is still on broken glass
     entity->statuses &= ~entity_player_status_slowdown;
+
+    orchestra_instrument_set(ORCHESTRA_FOOTSTEPS, fabsf(vector2d_magnitude(entity->velocity)) > 0);
 }
 
 
