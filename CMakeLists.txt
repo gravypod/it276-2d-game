@@ -9,6 +9,19 @@ find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 
+add_custom_command(
+        OUTPUT ${CMAKE_SOURCE_DIR}/sounds/health-we_are_water.mp3
+        COMMAND youtube-dl -x --audio-format mp3 "https://www.youtube.com/watch?v=toG4bHjPLEU" -o "./health-we_are_water.%(ext)s"
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/sounds/"
+        COMMENT "Downloading HEALTH - We are Water from youtube"
+        VERBATIM
+)
+
+add_custom_target(
+        sound-files
+        DEPENDS ${CMAKE_SOURCE_DIR}/sounds/health-we_are_water.mp3
+)
+
 add_executable(
         gf2d
 
@@ -48,3 +61,4 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DI
 target_link_libraries(gf2d m ${SDL2_LIBRARY}
                              ${SDL2_IMAGE_LIBRARIES}
                              ${SDL2_TTF_LIBRARIES})
+add_dependencies(gf2d sound-files)

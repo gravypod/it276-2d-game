@@ -65,3 +65,5 @@ makefile.dep
 
 
 saves/*.bin
+
+sounds/*.mp3
