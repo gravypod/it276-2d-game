@@ -10,6 +10,14 @@ find_package(SDL2_image REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 
 add_custom_command(
+        OUTPUT ${CMAKE_SOURCE_DIR}/sounds/coconuts-silver_lights.mp3
+        COMMAND youtube-dl -x --audio-format mp3 "https://www.youtube.com/watch?v=CcMz3aAZDv4" -o "./coconuts-silver_lights.%(ext)s"
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/sounds/"
+        COMMENT "Downloading Coconuts - Silver Lights from youtube"
+        VERBATIM
+)
+
+add_custom_command(
         OUTPUT ${CMAKE_SOURCE_DIR}/sounds/health-we_are_water.mp3
         COMMAND youtube-dl -x --audio-format mp3 "https://www.youtube.com/watch?v=toG4bHjPLEU" -o "./health-we_are_water.%(ext)s"
         WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/sounds/"
@@ -19,7 +27,7 @@ add_custom_command(
 
 add_custom_target(
         sound-files
-        DEPENDS ${CMAKE_SOURCE_DIR}/sounds/health-we_are_water.mp3
+        DEPENDS ${CMAKE_SOURCE_DIR}/sounds/health-we_are_water.mp3 ${CMAKE_SOURCE_DIR}/sounds/coconuts-silver_lights.mp3
 )
 
 add_executable(
