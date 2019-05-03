@@ -18,7 +18,21 @@ add_custom_command(
     VERBATIM
 )
 
+add_custom_command(
+    OUTPUT ${CMAKE_SOURCE_DIR}/sounds/gun-gunshot-01.wav
+    COMMAND wget https://www.soundjay.com/mechanical/gun-gunshot-01.wav -O gun-gunshot-01.wav
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/sounds/"
+    COMMENT "Downloading Gunshot 01"
+    VERBATIM
+)
 
+add_custom_command(
+    OUTPUT ${CMAKE_SOURCE_DIR}/sounds/machine-gun-01.wav
+    COMMAND wget https://www.soundjay.com/mechanical/machine-gun-01.wav -O machine-gun-01.wav
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/sounds/"
+    COMMENT "Downloading Machinegunshot 02"
+    VERBATIM
+)
 
 add_custom_command(
         OUTPUT ${CMAKE_SOURCE_DIR}/sounds/footsteps.wav
@@ -52,6 +66,8 @@ add_custom_target(
         ${CMAKE_SOURCE_DIR}/sounds/coconuts-silver_lights.mp3
         ${CMAKE_SOURCE_DIR}/sounds/footsteps.wav
         ${CMAKE_SOURCE_DIR}/sounds/bug-footsteps.wav
+        ${CMAKE_SOURCE_DIR}/sounds/gun-gunshot-01.wav
+        ${CMAKE_SOURCE_DIR}/sounds/machine-gun-01.wav
 )
 
 add_executable(

@@ -10,6 +10,8 @@ char *instrument_sound_files[ORCHESTRA_INSTRUMENTS_TOTAL] = {
         "sounds/coconuts-silver_lights.mp3", "sounds/health-we_are_water.mp3", // BGM
         "sounds/footsteps.wav",
         "sounds/bug-footsteps.wav",
+        "sounds/gun-gunshot-01.wav",
+        "sounds/machine-gun-01.wav",
         NULL
 };
 
@@ -23,9 +25,10 @@ orchestra_instruments music_instruments[ORCHESTRA_MUSICS_NUM] = {
         ORCHESTRA_BGM_COCONUTS_SILVER_LIGHTS, ORCHESTRA_BGM_HEALTH_WE_ARE_WATER
 };
 
-#define ORCHESTRA_SOUND_EFFECTS_NUM 2
+#define ORCHESTRA_SOUND_EFFECTS_NUM 4
 orchestra_instruments sound_effect_instruments[ORCHESTRA_SOUND_EFFECTS_NUM] = {
-        ORCHESTRA_FOOTSTEPS, ORCHESTRA_BUG_FOOTSTEPS
+        ORCHESTRA_FOOTSTEPS, ORCHESTRA_BUG_FOOTSTEPS,
+        ORCHESTRA_GUNSHOT, ORCHESTRA_MACHINE_GUNSHOT
 };
 
 Mix_Music *musics[ORCHESTRA_MUSICS_NUM];
@@ -128,23 +131,6 @@ void orchestra_music_switch_songs()
     Mix_PlayMusic(musics[current_song], 1);
 }
 
-void orchestra_sound_effect_looper(int channel)
-{
-    orchestra_instruments instrument = channel_get_instrument(channel);
-
-    if (instrument == ORCHESTRA_ERR || orchestra_instrument_music(instrument)) {
-        return;
-    }
-
-    playing[instrument] = continue_playing[instrument];
-
-    if (continue_playing[instrument]) {
-        if ((instruments_playing_on_channels[instrument] = Mix_PlayChannel(-1, chunk_for_instrument(instrument), 1)) == -1) {
-            printf("Mix_PlayChannel: %s\n", Mix_GetError());
-        }
-    }
-}
-
 bool orchestra_init()
 {
     if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 4, 4096) == -1) {
@@ -158,8 +144,6 @@ bool orchestra_init()
     Mix_VolumeMusic(128/4);
     Mix_HookMusicFinished(orchestra_music_switch_songs);
     orchestra_music_switch_songs();
-
-    Mix_ChannelFinished(orchestra_sound_effect_looper);
 
     Mix_Volume(-1, 64);
 }
@@ -195,11 +179,12 @@ void orchestra_update()
 
         if (playing[i] && !continue_playing[i]) {
             Mix_HaltChannel(instrament_get_channel(i));
+            instruments_playing_on_channels[i] = -1;
             playing[i] = false;
         }
 
         if (continue_playing[i] && !playing[i]) {
-            if ((instruments_playing_on_channels[i] = Mix_PlayChannel(-1, chunk_for_instrument(i), 1)) == -1) {
+            if ((instruments_playing_on_channels[i] = Mix_PlayChannel(-1, chunk_for_instrument(i), -1)) == -1) {
                 printf("Mix_PlayChannel: %s\n", Mix_GetError());
             } else {
                 playing[i] = true;

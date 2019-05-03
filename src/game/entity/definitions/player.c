@@ -63,7 +63,6 @@ attack_t attacks[NUM_ATTACKS] = {
         },
 };
 
-
 bool entity_player_should_spawn_egg_chance()
 {
     const int percent_change = 25;
@@ -445,6 +444,17 @@ void entity_player_update(entity_t *entity)
     entity->statuses &= ~entity_player_status_slowdown;
 
     orchestra_instrument_set(ORCHESTRA_FOOTSTEPS, fabsf(vector2d_magnitude(entity->velocity)) > 0);
+
+    if (entity_player_controller_attack_depressed()) {
+        if (entity->statuses & entity_player_status_weapon_4) {
+            orchestra_instrument_set(ORCHESTRA_MACHINE_GUNSHOT, true);
+        } else if (entity->statuses & entity_player_status_weapon_3) {
+            orchestra_instrument_set(ORCHESTRA_GUNSHOT, true);
+        }
+    } else {
+        orchestra_instrument_set(ORCHESTRA_MACHINE_GUNSHOT, false);
+        orchestra_instrument_set(ORCHESTRA_GUNSHOT, false);
+    }
 }
 
 
