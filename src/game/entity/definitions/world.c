@@ -8,7 +8,7 @@
 #include <zconf.h>
 #include <game/states/world.h>
 
-#define WORLD_MAX_BUGS 1
+#define WORLD_MAX_BUGS 30
 
 #define WORLD_SAVE_FILE "world-%d.bin"
 
@@ -294,8 +294,10 @@ void entity_world_init(entity_t *entity) {
         world_last_open_position = save.last_open_position;
         world_first_open_position = save.first_open_position;
     } else {
+        int num_bugs = (rand() % 5) + states_world_id_get();
+
         entity_world_burrow(&world_first_open_position, &world_last_open_position, tiles, 0.4f);
-        entity_world_bug_spawn(tiles, WORLD_MAX_BUGS);
+        entity_world_bug_spawn(tiles, num_bugs < WORLD_MAX_BUGS ? num_bugs : WORLD_MAX_BUGS);
         entity_world_pickups_spawn(tiles, 5);
         entity_world_doors_spawn(states_world_id_get());
 
