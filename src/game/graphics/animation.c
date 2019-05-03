@@ -120,8 +120,8 @@ animation_t player_body_handgun_shoot = {
         .num_frames = 3,
         .frames = {
                 FRAME(false, 5, "images/player/top-down-survivor/handgun/shoot/survivor-shoot_handgun_0.png"),
-                FRAME(true, 5, "images/player/top-down-survivor/handgun/shoot/survivor-shoot_handgun_1.png"),
-                FRAME(false, 30, "images/player/top-down-survivor/handgun/shoot/survivor-shoot_handgun_2.png"),
+                FRAME(true,  5, "images/player/top-down-survivor/handgun/shoot/survivor-shoot_handgun_1.png"),
+                FRAME(false, 160, "images/player/top-down-survivor/handgun/shoot/survivor-shoot_handgun_2.png"),
         }
 };
 

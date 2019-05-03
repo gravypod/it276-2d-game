@@ -8,6 +8,67 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_ttf REQUIRED)
+find_package(SDL2_mixer REQUIRED)
+
+add_custom_command(
+    OUTPUT ${CMAKE_SOURCE_DIR}/sounds/bug-footsteps.wav
+    COMMAND wget http://soundbible.com/grab.php?id=2113&type=wav -O bug-footsteps.wav
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/sounds/"
+    COMMENT "Downloading Bug Walking Sounds"
+    VERBATIM
+)
+
+add_custom_command(
+    OUTPUT ${CMAKE_SOURCE_DIR}/sounds/gun-gunshot-01.wav
+    COMMAND wget https://www.soundjay.com/mechanical/gun-gunshot-01.wav -O gun-gunshot-01.wav
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/sounds/"
+    COMMENT "Downloading Gunshot 01"
+    VERBATIM
+)
+
+add_custom_command(
+    OUTPUT ${CMAKE_SOURCE_DIR}/sounds/machine-gun-01.wav
+    COMMAND wget https://www.soundjay.com/mechanical/machine-gun-01.wav -O machine-gun-01.wav
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/sounds/"
+    COMMENT "Downloading Machinegunshot 02"
+    VERBATIM
+)
+
+add_custom_command(
+        OUTPUT ${CMAKE_SOURCE_DIR}/sounds/footsteps.wav
+        COMMAND wget https://www.soundjay.com/footsteps/footsteps-1.wav -O footsteps.wav
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/sounds/"
+        COMMENT "Downloading Sound Effect Footsteps"
+        VERBATIM
+)
+
+
+add_custom_command(
+        OUTPUT ${CMAKE_SOURCE_DIR}/sounds/coconuts-silver_lights.mp3
+        COMMAND youtube-dl -x --audio-format mp3 "https://www.youtube.com/watch?v=CcMz3aAZDv4" -o "./coconuts-silver_lights.%(ext)s"
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/sounds/"
+        COMMENT "Downloading Coconuts - Silver Lights from youtube"
+        VERBATIM
+)
+
+add_custom_command(
+        OUTPUT ${CMAKE_SOURCE_DIR}/sounds/health-we_are_water.mp3
+        COMMAND youtube-dl -x --audio-format mp3 "https://www.youtube.com/watch?v=toG4bHjPLEU" -o "./health-we_are_water.%(ext)s"
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/sounds/"
+        COMMENT "Downloading HEALTH - We are Water from youtube"
+        VERBATIM
+)
+
+add_custom_target(
+        sound-files
+        DEPENDS
+        ${CMAKE_SOURCE_DIR}/sounds/health-we_are_water.mp3
+        ${CMAKE_SOURCE_DIR}/sounds/coconuts-silver_lights.mp3
+        ${CMAKE_SOURCE_DIR}/sounds/footsteps.wav
+        ${CMAKE_SOURCE_DIR}/sounds/bug-footsteps.wav
+        ${CMAKE_SOURCE_DIR}/sounds/gun-gunshot-01.wav
+        ${CMAKE_SOURCE_DIR}/sounds/machine-gun-01.wav
+)
 
 add_executable(
         gf2d
@@ -40,11 +101,14 @@ add_executable(
         src/game/collision/point.h src/game/collision/raytrace.c src/game/collision/raytrace.h
 
         src/game/states/save/world.c src/game/states/save/world.h
-        src/game/states/save/save.h src/game/states/save/em.c src/game/states/save/em.h src/game/graphics/animation.c src/game/graphics/animation.h src/game/entity/definitions/healthbar.c src/game/entity/definitions/healthbar.h src/game/entity/definitions/equiptment.c src/game/entity/definitions/equiptment.h src/game/entity/definitions/pickup.c src/game/entity/definitions/pickup.h src/game/entity/definitions/throwing.c src/game/entity/definitions/throwing.h src/game/entity/definitions/plop.c src/game/entity/definitions/plop.h src/game/entity/definitions/egg.c src/game/entity/definitions/egg.h src/game/kennynl.h src/game/entity/definitions/door.c src/game/entity/definitions/door.h src/game/states/world.c src/game/states/world.h)
+        src/game/states/save/save.h src/game/states/save/em.c src/game/states/save/em.h src/game/graphics/animation.c src/game/graphics/animation.h src/game/entity/definitions/healthbar.c src/game/entity/definitions/healthbar.h src/game/entity/definitions/equiptment.c src/game/entity/definitions/equiptment.h src/game/entity/definitions/pickup.c src/game/entity/definitions/pickup.h src/game/entity/definitions/throwing.c src/game/entity/definitions/throwing.h src/game/entity/definitions/plop.c src/game/entity/definitions/plop.h src/game/entity/definitions/egg.c src/game/entity/definitions/egg.h src/game/kennynl.h src/game/entity/definitions/door.c src/game/entity/definitions/door.h src/game/states/world.c src/game/states/world.h src/game/sound/orchestra.c src/game/sound/orchestra.h)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/include" ${SDL2_INCLUDE_DIR}
-                    ${SDL2_IMAGE_INCLUDE_DIR}
-                    ${SDL2_TTF_INCLUDE_DIR})
+        ${SDL2_IMAGE_INCLUDE_DIR}
+        ${SDL2_TTF_INCLUDE_DIR}
+        ${SDL2_MIXER_INCLUDE_DIR})
 target_link_libraries(gf2d m ${SDL2_LIBRARY}
-                             ${SDL2_IMAGE_LIBRARIES}
-                             ${SDL2_TTF_LIBRARIES})
+        ${SDL2_IMAGE_LIBRARIES}
+        ${SDL2_TTF_LIBRARIES}
+        ${SDL2_MIXER_LIBRARIES})
+add_dependencies(gf2d sound-files)

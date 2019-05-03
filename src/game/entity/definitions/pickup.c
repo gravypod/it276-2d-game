@@ -19,14 +19,9 @@ entity_pickup_type entity_pickup_random_type() {
     return types[i];
 }
 
-void entity_pickup_init(entity_t *entity) {
-    entity->type = entity_type_pickup;
-    entity->touching = entity_pickup_touching;
-    entity->free = entity_pickup_free;
 
-    // Set the type of entity to add into the player's inventory
-    entity->statuses = entity_pickup_random_type();
-
+void entity_pickup_update(entity_t *entity)
+{
     switch (entity->statuses) {
         case entity_pickup_glowstick:
             entity->sprite = gf2d_sprite_load_image(KENNY_NL_IMAGE(024));
@@ -59,6 +54,19 @@ void entity_pickup_init(entity_t *entity) {
 
     entity->size.x = entity->sprite->frame_w;
     entity->size.y = entity->sprite->frame_h;
+    entity->update = NULL;
+}
+
+void entity_pickup_init(entity_t *entity) {
+    entity->type = entity_type_pickup;
+    entity->touching = entity_pickup_touching;
+    entity->free = entity_pickup_free;
+    entity->update = entity_pickup_update;
+
+    // Set the type of entity to add into the player's inventory
+    entity->statuses = entity_pickup_random_type();
+    entity->sprite = NULL;
+
 
 }
 
