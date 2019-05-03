@@ -155,8 +155,9 @@ bool orchestra_init()
     orchestra_sound_effects_load();
 
     // Background music is happening
+    Mix_VolumeMusic(128/4);
     Mix_HookMusicFinished(orchestra_music_switch_songs);
-    //orchestra_music_switch_songs();
+    orchestra_music_switch_songs();
 
     Mix_ChannelFinished(orchestra_sound_effect_looper);
 
