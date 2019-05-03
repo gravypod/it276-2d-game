@@ -4,6 +4,7 @@
 #include "world.h"
 #include "equiptment.h"
 #include "pickup.h"
+#include "bloodsplat.h"
 
 #include <SDL2/SDL.h>
 #include <game/game.h>
@@ -169,6 +170,9 @@ void entity_player_touching(entity_t *entity, entity_t *them)
             // If that damage killed the bug
             if (them->health <= 0) {
                 entity->statuses |= entity_player_status_stepedon_1;
+
+                // Spawn a bloodsplat effect on this entity.
+                entity_bloodsplat_spawn(them);
             }
         }
     }
@@ -477,6 +481,9 @@ void entity_player_fight()
 
         if (hit->health <= 0) {
             hit->health = 0;
+
+            // Spawn a bloodsplat effect on this entity.
+            entity_bloodsplat_spawn(hit);
 
             Vector4D color = {0,0,0,255};
 
