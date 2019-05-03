@@ -138,12 +138,10 @@ void orchestra_sound_effect_looper(int channel)
 
     playing[instrument] = continue_playing[instrument];
 
-    if (playing[instrument]) {
-        if ((instruments_playing_on_channels[instrument] = Mix_PlayChannel(channel, chunk_for_instrument(instrument), 1)) == -1) {
+    if (continue_playing[instrument]) {
+        if ((instruments_playing_on_channels[instrument] = Mix_PlayChannel(-1, chunk_for_instrument(instrument), 1)) == -1) {
             printf("Mix_PlayChannel: %s\n", Mix_GetError());
         }
-    } else {
-        slog("Stopping sound effect");
     }
 }
 
@@ -158,15 +156,11 @@ bool orchestra_init()
 
     // Background music is happening
     Mix_HookMusicFinished(orchestra_music_switch_songs);
-    orchestra_music_switch_songs();
+    //orchestra_music_switch_songs();
 
     Mix_ChannelFinished(orchestra_sound_effect_looper);
 
     Mix_Volume(-1, 64);
-
-/*    for (int i = 0; i < ORCHESTRA_INSTRUMENTS_TOTAL - 1; i++) {
-        playing[i] = continue_playing[i] = false;
-    }*/
 }
 
 void orchestra_update_bug_scuttle()
@@ -200,10 +194,11 @@ void orchestra_update()
 
         if (playing[i] && !continue_playing[i]) {
             Mix_HaltChannel(instrament_get_channel(i));
+            playing[i] = false;
         }
 
         if (continue_playing[i] && !playing[i]) {
-            if ((instruments_playing_on_channels[i] = Mix_PlayChannel(i, chunk_for_instrument(i), 1)) == -1) {
+            if ((instruments_playing_on_channels[i] = Mix_PlayChannel(-1, chunk_for_instrument(i), 1)) == -1) {
                 printf("Mix_PlayChannel: %s\n", Mix_GetError());
             } else {
                 playing[i] = true;
