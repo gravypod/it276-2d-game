@@ -121,6 +121,12 @@ int entity_world_toggle_index(int idx)
 {
     tiles[idx] = !tiles[idx];
     printf("Toggling tiles as %d\n", idx);
+
+    save_world_t save;
+    memcpy(save.filled, tiles, sizeof(bool) * TILES_COUNT);
+    save.last_open_position = world_last_open_position;
+    save.first_open_position = world_first_open_position;
+    save_world_dump(WORLD_SAVE_FILE, &save);
 }
 
 bool entity_world_entity_collision_generator(entity_t *entity, Vector2D *position_next, Vector2D *tile) {
