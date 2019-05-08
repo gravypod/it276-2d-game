@@ -49,6 +49,8 @@ bool game_state_load_entities()
         return false;
     }
 
+    bool made_a_player = false, made_a_world = false;
+
     for (size_t i = 0; i < MAX_NUM_ENTITIES; i++) {
         save_entity_t *saved = &save.entities[i];
 
@@ -58,10 +60,26 @@ bool game_state_load_entities()
 
         printf("\tMaking %d - %d @ (%f, %f)\n", saved->type, saved->statuses, saved->position.x, saved->position.y);
 
+        if (saved->type == entity_type_player) {
+            made_a_player = true;
+        }
+
+        if (saved->type == entity_type_world) {
+            made_a_world = true;
+        }
+
         entity_t *entity = entity_manager_make(saved->type);
 
         save_em_save_entity_to_entity(saved, entity);
     }
+
+    if (!made_a_world) {
+        entity_manager_make(entity_type_world);
+    }
+    if (!made_a_player) {
+        entity_manager_make(entity_type_player);
+    }
+
 
     return true;
 }
