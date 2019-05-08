@@ -19,7 +19,7 @@
 #define SPRITE_WIDTH 128
 
 entity_t *player = NULL;
-
+size_t touched_bug = SIZE_MAX, touched_pickup = SIZE_MAX;
 
 void entity_player_init(entity_t *entity)
 {
@@ -97,9 +97,11 @@ void entity_player_touching(entity_t *entity, entity_t *them)
     }
 
     if (them->type == entity_type_bug) {
-        if (entity_player_interaction_bug_depressed()) {
+        touched_bug = them->id;
+    }
 
-        }
+    if (them->type == entity_type_pickup) {
+        touched_pickup = them->id;
     }
 }
 
@@ -148,8 +150,61 @@ void entity_player_update(entity_t *entity)
     entity_player_update_interactions(entity);
 
 
+    bool spawn_bug = false, spawn_pickup = false;
+
+    touched_bug = touched_pickup = SIZE_MAX;
     if (entity_player_interaction_tile_depressed()) {
         int idx = entity_world_point_to_tile_index(&player->position);
         entity_world_toggle_index(idx);
+    }
+
+    if (entity_player_interaction_drop_depressed()) {
+        entity_update_collision(entity);
+
+        if (touched_pickup != SIZE_MAX) {
+            size_t i = 0;
+            entity_t *e = NULL;
+            while (entity_manager_iterate_generator(&i, true, &e)) {
+                if (e->id == touched_pickup) {
+                    entity_manager_release(e);
+                    break;
+                }
+            }
+        } else {
+            spawn_pickup = true;
+        }
+    }
+
+    if (entity_player_interaction_bug_depressed()) {
+        entity_update_collision(entity);
+
+        if (touched_bug != SIZE_MAX) {
+            size_t i = 0;
+            entity_t *e = NULL;
+            while (entity_manager_iterate_generator(&i, true, &e)) {
+                if (e->id == touched_bug) {
+                    entity_manager_release(e);
+                    break;
+                }
+            }
+        } else {
+            spawn_bug = true;
+        }
+    }
+
+    if (spawn_bug || spawn_pickup) {
+        entity_t *e = NULL;
+
+        if (spawn_bug) {
+            e = entity_manager_make(entity_type_bug);
+        }
+
+        if (spawn_pickup) {
+            e = entity_manager_make(entity_type_pickup);
+        }
+
+        if (e) {
+            e->position = entity->position;
+        }
     }
 }

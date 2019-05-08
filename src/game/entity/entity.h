@@ -186,5 +186,7 @@ void draw_centered_around_player(
         double rotation
 );
 
+void entity_update_collision(entity_t *entity);
+
 #endif
 
