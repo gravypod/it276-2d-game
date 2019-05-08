@@ -6,8 +6,6 @@ void entity_throwing_init(entity_t *entity)
 {
     entity->type = entity_type_throwing;
 
-    entity->touching = entity_throwing_touching;
-    entity->update = entity_throwing_update;
     entity->free = entity_throwing_free;
     entity->speed = 32;
 
@@ -15,23 +13,6 @@ void entity_throwing_init(entity_t *entity)
     entity->statuses = UINT32_MAX;
 }
 
-void entity_throwing_touching(entity_t *entity, entity_t *them)
-{
-    //vector2d_scale(entity->velocity, entity->velocity, 0);
-}
-
-void entity_throwing_update(entity_t *entity)
-{
-    // If there was an error, ignore this
-    if (entity->statuses != UINT32_MAX) {
-        if (entity->speed >= 0.01) {
-            entity->speed *= 0.9f;
-            return;
-        }
-    }
-
-    entity_manager_release(entity);
-}
 
 void entity_throwing_free(entity_t *entity)
 {

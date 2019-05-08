@@ -81,11 +81,6 @@ int main(int argc, char **argv)
     states_world_init();
     game_setup();
     {
-        if (SDL_NumJoysticks() <= 0) {
-            slog("Failed to find any joystick devices\n");
-            exit(1);
-        }
-
         game_state_manager_set(game_state_playing);
         {
             while (state.running) {

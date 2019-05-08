@@ -76,6 +76,10 @@ void entity_update(entity_t *entity) {
         entity->update(entity);
     }
 
+    // Editor change. Only player can move
+    if (entity->id != player->id)
+        return;
+
     velocity = entity->velocity;
 
     vector2d_normalize(&velocity);

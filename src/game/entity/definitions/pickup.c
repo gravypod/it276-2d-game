@@ -59,7 +59,6 @@ void entity_pickup_update(entity_t *entity)
 
 void entity_pickup_init(entity_t *entity) {
     entity->type = entity_type_pickup;
-    entity->touching = entity_pickup_touching;
     entity->free = entity_pickup_free;
     entity->update = entity_pickup_update;
 
@@ -68,61 +67,6 @@ void entity_pickup_init(entity_t *entity) {
     entity->sprite = NULL;
 
 
-}
-
-void entity_pickup_touching(entity_t *entity, entity_t *them) {
-    if (them->id != player->id) {
-        return;
-    }
-
-    bool release = true;
-
-    if (them == player && entity->statuses == entity_pickup_fire) {
-        if (them->health > 0) {
-            them->health -= 1;
-
-            if (them->health < 0)
-                them->health = 0;
-        }
-        return;
-    } else if (entity->statuses == entity_pickup_wettowel) {
-        long increment = PLAYER_MAX_HEALTH / 10;
-
-        if (them->health + increment > PLAYER_MAX_HEALTH) {
-            return;
-        }
-
-        them->health += increment;
-    } else {
-        entity_player_status_t status;
-
-        if (entity->statuses == entity_pickup_glowstick) {
-            status = entity_player_status_glowstick;
-        } else if (entity->statuses == entity_pickup_superglue) {
-            status = entity_player_status_superglue;
-        } else if (entity->statuses == entity_pickup_bagofchips) {
-            status = entity_player_status_bagofchips;
-        } else if (entity->statuses == entity_pickup_leftovercoffee) {
-            status = entity_player_status_speedup;
-        } else if (entity->statuses == entity_pickup_brokenglass) {
-            status = entity_player_status_slowdown;
-            // Broken glass will remain on the floor even after a player walks over it
-            release = false;
-        } else {
-            return;
-        }
-
-        // Does this player already have my status?
-        if (them->statuses & status) {
-            return;
-        }
-
-        them->statuses |= status;
-    }
-
-    if (release) {
-        entity_manager_release(entity);
-    }
 }
 
 void entity_pickup_free(entity_t *entity) {
