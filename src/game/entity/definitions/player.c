@@ -21,7 +21,8 @@
 entity_t *player = NULL;
 
 
-void entity_player_init(entity_t *entity) {
+void entity_player_init(entity_t *entity)
+{
     entity->type = entity_type_player;
     entity->free = entity_player_free;
     entity->update = entity_player_update;
@@ -51,7 +52,7 @@ bool key_pressed_debounced(SDL_Scancode scancode)
 {
     static bool was[255] = {0};
 
-    bool is = state.keys[SDL_SCANCODE_SPACE];
+    bool is = state.keys[scancode];
 
     if (was[scancode]) {
         if (!is) {
@@ -64,25 +65,30 @@ bool key_pressed_debounced(SDL_Scancode scancode)
     return is;
 }
 
-bool entity_player_interaction_drop_depressed() {
+bool entity_player_interaction_drop_depressed()
+{
     return key_pressed_debounced(SDL_SCANCODE_1);
 }
 
-bool entity_player_interaction_bug_depressed() {
+bool entity_player_interaction_bug_depressed()
+{
     return key_pressed_debounced(SDL_SCANCODE_2);
 }
 
 
-bool entity_player_interaction_tile_depressed() {
+bool entity_player_interaction_tile_depressed()
+{
     return key_pressed_debounced(SDL_SCANCODE_3);
 }
 
 
-bool entity_player_interaction_use_depressed() {
+bool entity_player_interaction_use_depressed()
+{
     return key_pressed_debounced(SDL_SCANCODE_SPACE);
 }
 
-void entity_player_touching(entity_t *entity, entity_t *them) {
+void entity_player_touching(entity_t *entity, entity_t *them)
+{
     if (them->type == entity_type_door) {
         if (entity_player_interaction_use_depressed()) {
             printf("Setting world id: %d\n", them->statuses);
@@ -97,10 +103,12 @@ void entity_player_touching(entity_t *entity, entity_t *them) {
     }
 }
 
-void entity_player_free(entity_t *entity) {
+void entity_player_free(entity_t *entity)
+{
 }
 
-Vector2D entity_player_walk_direction() {
+Vector2D entity_player_walk_direction()
+{
     const bool up = state.keys[SDL_SCANCODE_W];
     const bool left = state.keys[SDL_SCANCODE_A];
     const bool right = state.keys[SDL_SCANCODE_D];
@@ -119,13 +127,15 @@ Vector2D entity_player_walk_direction() {
     return walk_direction;
 }
 
-void entity_player_update_interactions(entity_t *entity) {
+void entity_player_update_interactions(entity_t *entity)
+{
     if (state.keys[SDL_SCANCODE_ESCAPE]) {
         state.running = false;
     }
 }
 
-void entity_player_update(entity_t *entity) {
+void entity_player_update(entity_t *entity)
+{
     static Vector2D last_tile = {-1, -1};
     Vector2D current_tile = entity_world_point_to_tile(&entity->position);
 
@@ -136,4 +146,10 @@ void entity_player_update(entity_t *entity) {
 
     entity->velocity = entity_player_walk_direction();
     entity_player_update_interactions(entity);
+
+
+    if (entity_player_interaction_tile_depressed()) {
+        int idx = entity_world_point_to_tile_index(&player->position);
+        entity_world_toggle_index(idx);
+    }
 }

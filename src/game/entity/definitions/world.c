@@ -96,6 +96,33 @@ Vector2D entity_world_point_to_tile(Vector2D *point)
 
 }
 
+int entity_world_point_to_tile_index(Vector2D *point)
+{
+    for (int i = 0; i < TILES_COUNT; i++) {
+        const int x = i % TILES_X, y = i / TILES_X;
+
+        const Vector2D tile = {
+                (tile_size.x * x) - (TILE_SIZE_X / 2.0f),
+                (tile_size.y * y) - (TILE_SIZE_Y / 2.0f)
+        };
+
+        const bool within_x = (tile.x <= point->x) && ((tile.x  + TILE_SIZE_X) > point->x);
+        const bool within_y = (tile.y <= point->y) && ((tile.y  + TILE_SIZE_Y) > point->y);
+
+        if (within_x && within_y) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+int entity_world_toggle_index(int idx)
+{
+    tiles[idx] = !tiles[idx];
+    printf("Toggling tiles as %d\n", idx);
+}
+
 bool entity_world_entity_collision_generator(entity_t *entity, Vector2D *position_next, Vector2D *tile) {
     int i;
     for (i = ((int) (tile->y * TILES_X) + tile->x); i < TILES_COUNT; i++) {

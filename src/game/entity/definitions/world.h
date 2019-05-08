@@ -24,6 +24,8 @@ Vector2D entity_world_position_exit();
 bool entity_world_point_collides(Vector2D *point);
 
 Vector2D entity_world_point_to_tile(Vector2D *point);
+int entity_world_point_to_tile_index(Vector2D *point);
+int entity_world_toggle_index(int idx);
 
 void entity_world_init(entity_t *entity);
 
