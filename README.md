@@ -1,38 +1,13 @@
-# Joshua Katz 2D Game (gameframework2d)
+# Joshua Katz 2D Game **LEVEL EDITOR** (gameframework2d)
 
-You are an exterminator who is taking out bugs. Kill bugs and explore.
-
-# Weapons
-
-1. Your Foot: Crush a bug. Brings risk of spawning more bugs. Harms you.
-2. Punching: Kill a bug. No risk of spawning more bugs.
-3. Knife: Slightly faster than punching.
-4. Handgun: Slightly faster than Knife and longer range
-5. Rifle: Extremely fast
-
-# Pickups
-
-1. Coffee: Walk faster
-2. Super Glue: Throw and trap bugs
-3. Glowsticks: Throw and repel bugs
-4. Bag of Chips: Throw and attract bugs
-5. Wet Towel: Heal player
-
-# Level Effects
-
-1. Fire: Damage while standing on
-2. Chest: Provide equipment that you don't already have
-3. Broken Glass: Walk slower
-4. Door: Go to other rooms
+Level editor for bug killing game.
 
 # Controls
 
-1. Look: Right Joystick
-2. Move: Left Joystick
-3. Attack: RT
-4. Throw: LT
-5. Select Equipment Left/Right: LB/RB
-
+1. WASD: Up, Left, Down, Right
+2. Top Row Number 1: Spawn/despawn a world item (pickups, broken glass, etc)
+3. Top Row Number 2: Spawn/despawn a bug
+3. Top Row Number 3: Spawn/despawn a tile
 
 # Fonts
 
