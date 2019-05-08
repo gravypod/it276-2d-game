@@ -25,6 +25,15 @@ Vector2D entity_position_top_left(entity_t *e)
     return top_left_entity;
 }
 
+Vector2D entity_position_center(Vector2D size, Vector2D top_left)
+{
+    const Vector2D top_left_entity = {
+            .x = top_left.x + (size.x / 2.0f),
+            .y = top_left.y + (size.y / 2.0f),
+    };
+    return top_left_entity;
+}
+
 void entity_post_init(entity_t *e) {
     e->allocated = true;
 }
@@ -85,26 +94,37 @@ void entity_update(entity_t *entity) {
     vector2d_normalize(&velocity);
     vector2d_scale(velocity, velocity, entity->speed);
 
+    position = entity_position_top_left(entity);
     // Add the velocity of the player to the position to enable motion
-    vector2d_add(position, entity->position, velocity);
+    vector2d_add(position, position, velocity);
 
-    if (entity_world_entity_is_colliding(entity, &position)) {
-        Vector2D velocity_no_x = {.x = 0, .y = velocity.y};
-        Vector2D velocity_no_y = {.x = velocity.x, .y = 0};
 
-        // Try to cancel x movement.
-        vector2d_add(position, entity->position, velocity_no_x);
-        if (entity_world_entity_is_colliding(entity, &position)) {
-            vector2d_add(position, entity->position, velocity_no_y);
-        }
+    double min_x_pos = 0;
+    double min_y_pos = 0;
+
+    double max_x_pos = (((TILES_X - 1) * TILE_SIZE_X));
+    double max_y_pos = (((TILES_Y - 1) * TILE_SIZE_Y));
+
+
+    if (position.x < min_x_pos) {
+        position.x = min_x_pos;
     }
 
-    // Set the position into the entity position.
-    if (!entity_world_entity_is_colliding(entity, &position)) {
-        vector2d_scale(entity->position, position, 1.0f);
-        entity_update_collision(entity);
+    if (position.y < min_y_pos) {
+        position.y = min_y_pos;
     }
 
+    if (position.x > max_x_pos) {
+        position.x = max_x_pos;
+    }
+
+    if (position.y > max_y_pos) {
+        position.y = max_y_pos;
+    }
+    
+    entity->position = entity_position_center(entity->size, position);
+    
+    entity_update_collision(entity);
 }
 
 void entity_touching(entity_t *entity, entity_t *other) {

@@ -45,7 +45,6 @@ void game_update()
     SDL_GetMouseState(&state.mouse_x, &state.mouse_y);
 
     entity_manager_update();
-    orchestra_update();
 }
 
 void game_draw()
@@ -62,14 +61,12 @@ void game_setup()
     init_logger("gf2d.log");
     entity_manager_init();
     game_graphics_init();
-    orchestra_init();
     SDL_ShowCursor(SDL_DISABLE);
 
 }
 
 void game_teardown()
 {
-    orchestra_destroy();
     gf2d_sprite_cleanup();
     gf2d_graphics_cleanup();
     close_logger();

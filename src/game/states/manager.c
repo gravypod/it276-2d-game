@@ -22,6 +22,9 @@ game_state *game_states[] = {
         &playing
 };
 
+save_entity_t real_player;
+
+
 void game_state_persist_entities()
 {
     save_em_t save;
@@ -34,14 +37,17 @@ void game_state_persist_entities()
 
     while (entity_manager_iterate_generator(&entity_id, true, &entity)) {
         printf("\tPersisting %d\n", entity->type);
+
         save_entity_t *save_entity = &save.entities[i++];
-        save_em_entity_to_save_entity(entity, save_entity);
+        if (entity->type == entity_type_player) {
+            memcpy(save_entity, &real_player, sizeof(real_player));
+        } else {
+            save_em_entity_to_save_entity(entity, save_entity);
+        }
     }
 
     save_em_dump("entites-%d.bin", &save);
 }
-
-
 bool game_state_load_entities()
 {
     save_em_t save;
@@ -60,7 +66,11 @@ bool game_state_load_entities()
 
         entity_t *entity = entity_manager_make(saved->type);
 
-        save_em_save_entity_to_entity(saved, entity);
+        if (saved->type != entity_type_player) {
+            save_em_save_entity_to_entity(saved, entity);
+        } else {
+            memcpy(&real_player, saved, sizeof(real_player));
+        }
     }
 
     return true;

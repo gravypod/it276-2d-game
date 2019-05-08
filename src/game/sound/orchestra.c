@@ -196,13 +196,6 @@ void orchestra_update()
 
 void orchestra_instrument_set(orchestra_instruments instrument, bool state)
 {
-    if (orchestra_instrument_music(instrument)) {
-        // Can't change music tracks with _set
-        slog("Cant change music tracks with _set");
-        return;
-    }
-
-    continue_playing[instrument] = state;
 }
 
 void orchestra_destroy()

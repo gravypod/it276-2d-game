@@ -27,14 +27,14 @@ void entity_player_init(entity_t *entity) {
     entity->update = entity_player_update;
     //entity->draw = entity_player_draw;
     entity->touching = entity_player_touching;
-    //entity->sprite = gf2d_sprite_load_all("images/ed210_top.png", SPRITE_WIDTH, SPRITE_HEIGHT, 16);
+    entity->sprite = gf2d_sprite_load_image("images/crosshairs/crosshair010.png");
     entity->position.x = 10;
     entity->position.y = 10;
 
 
     entity->roation = 0;
-    entity->size.x = SPRITE_WIDTH;
-    entity->size.y = SPRITE_HEIGHT;
+    entity->size.x = 64;
+    entity->size.y = 64;
     entity->statuses = entity_player_status_none;
 
     entity->position = world_first_open_position;
@@ -43,6 +43,7 @@ void entity_player_init(entity_t *entity) {
 
     entity->health = PLAYER_MAX_HEALTH;
 
+    entity->speed = 10;
     player = entity;
 }
 
@@ -125,6 +126,14 @@ void entity_player_update_interactions(entity_t *entity) {
 }
 
 void entity_player_update(entity_t *entity) {
+    static Vector2D last_tile = {-1, -1};
+    Vector2D current_tile = entity_world_point_to_tile(&entity->position);
+
+    if (last_tile.x != current_tile.x || last_tile.y != current_tile.y) {
+        last_tile = current_tile;
+        printf("Player entered tile %f, %f\n", current_tile.x, current_tile.y);
+    }
+
     entity->velocity = entity_player_walk_direction();
     entity_player_update_interactions(entity);
 }
