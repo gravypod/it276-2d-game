@@ -22,6 +22,7 @@ game_state *game_states[] = {
         &playing
 };
 
+bool loaded_player = false;
 save_entity_t real_player;
 
 
@@ -40,7 +41,9 @@ void game_state_persist_entities()
 
         save_entity_t *save_entity = &save.entities[i++];
         if (entity->type == entity_type_player) {
-            memcpy(save_entity, &real_player, sizeof(real_player));
+            if (loaded_player) {
+                memcpy(save_entity, &real_player, sizeof(real_player));
+            }
         } else {
             save_em_entity_to_save_entity(entity, save_entity);
         }
@@ -69,6 +72,7 @@ bool game_state_load_entities()
         if (saved->type != entity_type_player) {
             save_em_save_entity_to_entity(saved, entity);
         } else {
+            loaded_player = true;
             memcpy(&real_player, saved, sizeof(real_player));
         }
     }
