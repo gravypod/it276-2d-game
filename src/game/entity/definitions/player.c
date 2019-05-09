@@ -26,7 +26,8 @@
 
 entity_t *player = NULL;
 SDL_GameController *controller = NULL;
-
+Sprite *flare = NULL;
+int flare_frames_left = 0;
 
 #define NUM_ATTACKS 4
 
@@ -135,6 +136,10 @@ void entity_player_init(entity_t *entity)
         }
     }
 
+    if (flare  == NULL) {
+        flare = gf2d_sprite_load_image("images/muzzle/m_7.png");
+    }
+
     player = entity;
 }
 
@@ -209,6 +214,10 @@ void entity_player_touching(entity_t *entity, entity_t *them)
 
 void entity_player_free(entity_t *entity)
 {
+    if (flare != NULL) {
+        gf2d_sprite_free(flare);
+        flare = NULL;
+    }
 }
 
 bool entity_player_controller_lb_depressed()
@@ -432,6 +441,7 @@ void entity_player_stepon_update(entity_t *entity)
 
 void entity_player_update(entity_t *entity)
 {
+    entity->statuses |= entity_player_status_weapon_4;
     entity_player_update_powerups(entity);
     entity->velocity = entity_player_controller_walk_direction();
     entity->roation = entity_player_controller_angle();
@@ -471,6 +481,12 @@ void entity_player_fight()
         if (player->statuses & attacks[i].type) {
             attack = attacks[i];
         }
+    }
+
+    if (player->statuses & entity_player_status_weapon_4) {
+        flare_frames_left = 25;
+    } else if (player->statuses & entity_player_status_weapon_3) {
+        flare_frames_left = 25;
     }
 
     entity_t *hit = entity_player_attack(attack.distance, attack.steps);
@@ -600,6 +616,27 @@ void entity_player_draw(entity_t *entity)
         }
 
         animation_render(entity, current, &torso, action);
+
+        if (flare_frames_left > 0) {
+            flare_frames_left -= 1;
+            Vector2D size = {flare->frame_w, flare->frame_h};
+
+
+            Vector2D position = player->position;
+            Vector2D direction = vector2d_unit_vector_from_angle((player->roation - 90) * DEG2RAD);
+            vector2d_scale(direction, direction, 230);
+            vector2d_add(position, position, direction);
+
+            Vector2D correction = vector2d_unit_vector_from_angle((player->roation) * DEG2RAD);
+            vector2d_scale(correction, correction, 55);
+            vector2d_add(position, position, correction);
+
+            Vector4D color_shift = {
+                    255, 255, 255, (255 * (((float)flare_frames_left) / 10.0f))
+            };
+
+            draw_centered_around_player(flare, size, position, &color_shift, 0, player->roation - 90);
+        }
     }
 
 }
