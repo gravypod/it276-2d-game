@@ -174,7 +174,7 @@ void entity_player_touching(entity_t *entity, entity_t *them)
 
             // If that damage killed the bug
             if (them->health <= 0) {
-                entity->health -= 5; // Lose one health point for stepping on a bug
+                entity->health -= 50; // Lose one health point for stepping on a bug
                 entity->statuses |= entity_player_status_stepedon_1;
 
                 // Spawn a bloodsplat effect on this entity.
