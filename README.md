@@ -33,8 +33,32 @@ You are an exterminator who is taking out bugs. Kill bugs and explore.
 4. Throw: LT
 5. Select Equipment Left/Right: LB/RB
 
+# Level Editor
+
+Please checkout the `level-editor` branch to use the level editor.
 
 # Fonts
 
 1. ComicNeue-Regular.otf: http://comicneue.com/
 2. ComicNeue-Regular.ttf: https://convertio.co/otf-ttf/
+
+
+# Build Requirements
+
+1. youtube-dl
+2. cmake
+3. wget
+4. SDL, SDL_image, SDL_ttf, SDL_mixer headers&libraries
+5. C Compiler 
+
+
+# Build Instructions
+
+```
+$ mkdir cmake-build
+$ cd cmake-build
+$ cmake ..
+$ make
+$ cd ..
+$ ./cmake-build/gf2d
+```
