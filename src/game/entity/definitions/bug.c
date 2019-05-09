@@ -119,8 +119,7 @@ void entity_bug_touching(entity_t *entity, entity_t *them)
     }
 
     if (them->id == player->id) {
-        printf("Bug was damaged by player touch (%li -> %li)\n", entity->id, them->id);
-        //them->health -= 1;
+        them->health -= 1;
     }
 }
 

@@ -38,6 +38,8 @@ typedef enum {
     entity_type_egg,
     entity_type_door,
 
+    entity_type_bloodsplat,
+
 } entity_type_t;
 
 /**

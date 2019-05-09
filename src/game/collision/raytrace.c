@@ -25,7 +25,12 @@ bool raytrace_collision_entity(entity_t *shooter, Vector2D *position, entity_t *
 
         // Plops and pickups cannot be damaged by raytaces
         // This is ugly and should be a param
-        if (test->type == entity_type_plop || test->type == entity_type_pickup) {
+        if (test->type != entity_type_bug) {
+            continue;
+        }
+
+        // Ignore dead bugs
+        if (test->type == entity_type_bug && test->health == 0) {
             continue;
         }
 

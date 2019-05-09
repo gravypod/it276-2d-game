@@ -14,6 +14,7 @@
 #include <game/entity/definitions/plop.h>
 #include <game/entity/definitions/egg.h>
 #include <game/entity/definitions/door.h>
+#include <game/entity/definitions/bloodsplat.h>
 
 struct
 {
@@ -64,6 +65,8 @@ const entity_initializer_t constructors[] = {
 
         entity_egg_init,
         entity_door_init,
+
+        entity_bloodsplat_init
 };
 
 
@@ -197,7 +200,8 @@ void entity_manager_draw()
     // Items
     EMU_DRAW_SPECIFIC(
             entity->type == entity_type_pickup ||
-            entity->type == entity_type_plop
+            entity->type == entity_type_plop   ||
+            entity->type == entity_type_bloodsplat
     );
 
     // Bugs/Enemies/Projectiles
